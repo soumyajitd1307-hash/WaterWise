@@ -6,6 +6,8 @@
 <title>WaterWise — Daily Water Consumption Analyzer</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
 <style>
   :root {
     --deep:   #060e1f;
@@ -96,13 +98,13 @@
   #results.visible { display: block; animation: fadeUp .5s ease; }
   @keyframes fadeUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
 
-  .gauge-card { background: var(--glass); border: 1px solid var(--border); border-radius: 20px; padding: 36px; backdrop-filter: blur(12px); text-align: center; margin-bottom: 24px; }
-  .gauge-wrap { position: relative; width: 220px; height: 120px; margin: 0 auto 20px; overflow: hidden; }
-  .gauge-svg { width: 220px; height: 220px; position: absolute; top: 0; left: 0; }
-  .gauge-label { position: absolute; bottom: 0; left: 0; right: 0; text-align: center; }
-  .gauge-num { font-family: 'Playfair Display',serif; font-size: 2.4rem; font-weight: 900; color: var(--white); }
-  .gauge-unit { font-size: 0.85rem; color: rgba(240,249,255,0.5); }
-  .gauge-status { display: inline-block; padding: 5px 16px; border-radius: 999px; font-size: 0.82rem; font-weight: 600; letter-spacing: 0.04em; margin-top: 10px; }
+  .gauge-card { background: var(--glass); border: 1px solid var(--border); border-radius: 20px; padding: 28px 36px 32px; backdrop-filter: blur(12px); text-align: center; margin-bottom: 24px; }
+  .gauge-wrap { position: relative; width: 200px; height: 130px; margin: 0 auto 4px; overflow: hidden; }
+  .gauge-svg { width: 200px; height: 200px; position: absolute; top: -12px; left: 0; }
+  .gauge-label { position: absolute; bottom: 0; left: 0; right: 0; text-align: center; padding-bottom: 2px; }
+  .gauge-num { font-family: 'Playfair Display',serif; font-size: 2rem; font-weight: 900; color: var(--white); letter-spacing: -0.02em; }
+  .gauge-unit { font-size: 0.72rem; color: rgba(240,249,255,0.35); letter-spacing: 0.08em; text-transform: uppercase; margin-top: 1px; }
+  .gauge-status { display: inline-flex; align-items: center; gap: 6px; padding: 6px 20px; border-radius: 999px; border: 1px solid transparent; font-size: 0.78rem; font-weight: 500; letter-spacing: 0.02em; margin-top: 4px; }
 
   .proj-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-bottom: 24px; }
   @media(max-width:650px){ .proj-grid{grid-template-columns:1fr} }
@@ -117,26 +119,79 @@
   .chart-title { font-weight: 600; font-size: 0.95rem; color: var(--foam); margin-bottom: 20px; }
   .chart-canvas-wrap { position: relative; height: 220px; }
 
-  .compare-card { background: var(--glass); border: 1px solid var(--border); border-radius: 20px; padding: 28px; backdrop-filter: blur(12px); margin-bottom: 40px; }
+  .compare-card { background: var(--glass); border: 1px solid var(--border); border-radius: 20px; padding: 28px; backdrop-filter: blur(12px); margin-bottom: 24px; }
   .compare-row { margin-bottom: 20px; }
   .compare-row:last-child { margin-bottom: 0; }
   .compare-meta { display: flex; justify-content: space-between; font-size: 0.88rem; margin-bottom: 8px; color: rgba(240,249,255,0.8); }
   .bar-track { height: 12px; background: rgba(34,211,238,0.08); border-radius: 999px; overflow: hidden; }
   .bar-fill { height: 100%; border-radius: 999px; transition: width 1.2s cubic-bezier(.4,0,.2,1); }
 
-  /* ── TIPS SECTION (always visible) ── */
+  .btn-pdf { display:inline-flex; align-items:center; gap:8px; background: transparent; border: 1px solid var(--border); color: var(--foam); border-radius: 12px; padding: 14px 30px; font-size: 0.92rem; font-weight: 600; cursor: pointer; font-family: 'DM Sans',sans-serif; transition: border-color .2s,color .2s,transform .15s; }
+  .btn-pdf:hover { border-color: var(--aqua); color: var(--aqua); transform: translateY(-2px); }
+  .btn-pdf:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  #challenges-sec { padding: 80px 0 100px; }
+  .challenges-header { margin-bottom: 48px; }
+  .xp-bar-card { background: var(--glass); border: 1px solid var(--border); border-radius: 20px; padding: 28px 32px; backdrop-filter: blur(12px); margin-bottom: 28px; }
+  .xp-header { display: flex; justify-content: space-between; align-items: center; font-size: 1rem; color: var(--foam); margin-bottom: 12px; }
+  .xp-header strong { font-family: 'Playfair Display',serif; font-size: 1.4rem; color: var(--aqua); }
+  .xp-track { height: 10px; background: rgba(34,211,238,0.1); border-radius: 999px; overflow: hidden; }
+  .xp-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg,#22d3ee,#34d399); transition: width .6s ease; }
+  .xp-level { font-size: 0.82rem; color: rgba(240,249,255,0.5); margin-top: 8px; text-align: right; }
+  .streak-card { margin-top:16px; padding-top:18px; border-top:1px solid var(--border); display:flex; flex-direction:column; align-items:center; gap:6px; }
+  .streak-fire-wrap { font-size:2.2rem; line-height:1; animation:streakPulse 1.4s ease-in-out infinite; display:flex; gap:2px; }
+  @keyframes streakPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.12)} }
+  .streak-fire-wrap.mega { animation-duration:.9s; filter:drop-shadow(0 0 12px rgba(251,146,60,0.6)); }
+  .streak-day-num { font-family:'Playfair Display',serif; font-size:2.6rem; font-weight:900; line-height:1; color:var(--white); }
+  .streak-day-num.hot { color:#fb923c; text-shadow:0 0 30px rgba(251,146,60,0.4); }
+  .streak-day-label { font-size:0.75rem; color:rgba(240,249,255,0.45); letter-spacing:0.08em; text-transform:uppercase; margin-top:-2px; }
+  .streak-msg { font-size:0.82rem; font-weight:500; color:rgba(240,249,255,0.7); margin:2px 0 10px; text-align:center; }
+  .streak-msg.bright { color:var(--aqua); }
+  .streak-msg.hot { color:#fb923c; }
+  .streak-msg.legend { color:#fbbf24; }
+  .streak-bar-track { width:100%; height:6px; background:rgba(34,211,238,0.08); border-radius:999px; overflow:hidden; }
+  .streak-bar-fill { height:100%; border-radius:999px; background:linear-gradient(90deg,#22d3ee,#fb923c); transition:width .6s ease; }
+  .streak-meta { display:flex; justify-content:space-between; width:100%; font-size:0.72rem; color:rgba(240,249,255,0.35); margin-top:2px; }
+  .streak-meta strong { color:rgba(240,249,255,0.6); font-weight:500; }
+  .streak-bonus { font-size:0.78rem; color:#34d399; font-weight:600; animation:bonusPop .4s ease; }
+  @keyframes bonusPop { 0%{transform:scale(0);opacity:0} 60%{transform:scale(1.25)} 100%{transform:scale(1);opacity:1} }
+  .challenge-tabs { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+  .ch-tab { padding: 10px 22px; border-radius: 999px; border: 1px solid var(--border); background: var(--glass2); color: rgba(240,249,255,0.6); font-size: 0.88rem; cursor: pointer; font-family: 'DM Sans',sans-serif; transition: all .2s; }
+  .ch-tab:hover { border-color: var(--aqua); color: var(--aqua); }
+  .ch-tab.active { background: rgba(34,211,238,0.15); border-color: var(--aqua); color: var(--white); font-weight: 600; }
+  .challenge-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(300px,1fr)); gap: 14px; }
+  .ch-card { background: var(--glass); border: 1px solid var(--border); border-radius: 16px; padding: 20px 22px; backdrop-filter: blur(12px); display: flex; gap: 14px; align-items: flex-start; transition: all .2s; }
+  .ch-card:hover { border-color: rgba(34,211,238,0.35); }
+  .ch-card.ch-done { opacity: 0.55; }
+  .ch-card.ch-done:hover { border-color: var(--border); }
+  .ch-card.ch-locked { opacity:0.4; cursor:default; }
+  .ch-card.ch-locked:hover { border-color:var(--border); transform:none; }
+  .ch-lock-icon { font-size:1.8rem; flex-shrink:0; line-height:1; margin-top:2px; }
+  .ch-refresh-msg { background:rgba(34,211,238,0.08); border:1px solid rgba(34,211,238,0.2); border-radius:14px; padding:20px 24px; text-align:center; grid-column:1/-1; }
+  .ch-refresh-msg span { font-size:1.5rem; display:block; margin-bottom:6px; }
+  .ch-refresh-msg strong { color:var(--aqua); }
+  .ch-refresh-msg p { font-size:0.85rem; color:rgba(240,249,255,0.55); line-height:1.6; }
+  .ch-unlock-text { font-size:0.72rem; color:rgba(240,249,255,0.35); margin-top:4px; font-style:italic; }
+  .ch-icon { font-size: 1.8rem; flex-shrink: 0; line-height: 1; margin-top: 2px; }
+  .ch-body { flex: 1; min-width: 0; }
+  .ch-title { font-weight: 700; font-size: 0.95rem; color: var(--foam); margin-bottom: 5px; }
+  .ch-desc { font-size: 0.83rem; color: rgba(240,249,255,0.55); line-height: 1.65; margin-bottom: 10px; }
+  .ch-meta { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .ch-xp { font-size: 0.75rem; font-weight: 700; color: var(--aqua); background: rgba(34,211,238,0.1); border: 1px solid rgba(34,211,238,0.2); border-radius: 999px; padding: 3px 12px; }
+  .ch-btn { font-size: 0.78rem; font-weight: 600; color: var(--deep); background: linear-gradient(135deg,var(--teal),var(--aqua)); border: none; border-radius: 999px; padding: 6px 16px; cursor: pointer; font-family: 'DM Sans',sans-serif; transition: transform .15s,box-shadow .15s; }
+  .ch-btn:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(34,211,238,0.3); }
+  .ch-badge { font-size: 0.78rem; font-weight: 600; color: var(--accent); background: rgba(52,211,153,0.1); border: 1px solid rgba(52,211,153,0.25); border-radius: 999px; padding: 3px 12px; }
+
   #tips-sec { padding: 80px 0 100px; }
   .tips-header { margin-bottom: 48px; }
   .tips-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(260px,1fr)); gap: 16px; }
   .tip-card { background: var(--glass); border: 1px solid var(--border); border-radius: 16px; padding: 24px; backdrop-filter: blur(12px); display: flex; gap: 14px; align-items: flex-start; transition: transform .2s,border-color .2s; }
   .tip-card:hover { transform: translateY(-4px); border-color: rgba(52,211,153,0.4); }
   .tip-emoji { font-size: 2rem; flex-shrink: 0; line-height: 1; margin-top: 2px; }
-  .tip-body {}
   .tip-title { font-weight: 700; font-size: 0.95rem; color: var(--foam); margin-bottom: 6px; }
   .tip-text { font-size: 0.83rem; color: rgba(240,249,255,0.55); line-height: 1.7; }
   .tip-save { display: inline-block; margin-top: 10px; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.06em; color: var(--accent); background: rgba(52,211,153,0.1); border: 1px solid rgba(52,211,153,0.25); border-radius: 999px; padding: 3px 12px; }
 
-  /* ── FACT BANNER ── */
   .fact-banner { background: linear-gradient(135deg,rgba(8,145,178,0.2),rgba(34,211,238,0.1)); border: 1px solid rgba(34,211,238,0.25); border-radius: 20px; padding: 40px; text-align: center; margin-bottom: 48px; }
   .fact-banner h3 { font-family: 'Playfair Display',serif; font-size: 1.5rem; font-weight: 700; color: var(--aqua); margin-bottom: 12px; }
   .fact-banner p { font-size: 0.92rem; color: rgba(240,249,255,0.6); line-height: 1.75; max-width: 600px; margin: 0 auto; }
@@ -146,17 +201,60 @@
   ::-webkit-scrollbar { width: 6px; }
   ::-webkit-scrollbar-track { background: var(--deep); }
   ::-webkit-scrollbar-thumb { background: var(--wave); border-radius: 3px; }
+
+  /* ── ACHIEVEMENT OVERLAY ── */
+  .achieve-overlay { position:fixed; inset:0; z-index:9999; display:flex; align-items:center; justify-content:center; background:rgba(6,14,31,0.7); backdrop-filter:blur(8px); animation:achieveFade .4s ease; }
+  @keyframes achieveFade { from{opacity:0} to{opacity:1} }
+  .achieve-card { background:linear-gradient(135deg,rgba(14,52,96,0.95),rgba(8,145,178,0.35)); border:2px solid rgba(34,211,238,0.4); border-radius:24px; padding:48px 56px; text-align:center; max-width:420px; backdrop-filter:blur(20px); animation:achievePop .5s cubic-bezier(.34,1.56,.64,1); box-shadow:0 0 80px rgba(34,211,238,0.2),0 0 160px rgba(34,211,238,0.08); }
+  @keyframes achievePop { from{transform:scale(.6) translateY(40px);opacity:0} to{transform:scale(1) translateY(0);opacity:1} }
+  .achieve-icon { font-size:4rem; margin-bottom:12px; display:block; animation:achieveBounce 1s ease infinite alternate; }
+  @keyframes achieveBounce { from{transform:scale(1)} to{transform:scale(1.12)} }
+  .achieve-stars { font-size:1.6rem; letter-spacing:6px; margin-bottom:6px; }
+  .achieve-title { font-family:'Playfair Display',serif; font-size:1.5rem; font-weight:700; color:#22d3ee; margin-bottom:4px; }
+  .achieve-level { font-size:2.4rem; font-weight:900; color:#ffffff; margin-bottom:8px; }
+  .achieve-sub { font-size:0.85rem; color:rgba(240,249,255,0.5); margin-bottom:28px; line-height:1.6; }
+  .achieve-btn { background:linear-gradient(135deg,var(--teal),var(--aqua)); color:var(--deep); border:none; border-radius:999px; padding:12px 36px; font-size:0.95rem; font-weight:700; cursor:pointer; font-family:'DM Sans',sans-serif; transition:transform .2s,box-shadow .2s; box-shadow:0 0 30px rgba(34,211,238,0.3); }
+  .achieve-btn:hover { transform:translateY(-2px); box-shadow:0 0 50px rgba(34,211,238,0.5); }
+
+  @media(max-width:700px){
+    .nav-inner { padding:0 8px; height:50px; }
+    .logo { font-size:0.95rem; gap:4px; }
+    .logo-drop { font-size:1.1rem; }
+    .nav-links { gap:4px; }
+    .nav-links a { font-size:0.62rem; letter-spacing:0; }
+    .hero-content { text-align:center; display:flex; flex-direction:column; align-items:center; }
+    .hero p { text-align:center; }
+    .hero-stats { justify-content:center; gap:24px; }
+    .hero-stat-val { font-size:1.6rem; }
+    .hero-stat-label { font-size:0.72rem; }
+    .section-sub { text-align:center; margin-left:auto; margin-right:auto; }
+  }
+  @media(max-width:600px){
+    .wrapper { padding:0 16px; }
+    .xp-bar-card { padding:20px 18px; }
+    .streak-day-num { font-size:2rem; }
+    .streak-fire-wrap { font-size:1.8rem; }
+    .streak-msg { font-size:0.78rem; }
+    .streak-meta { font-size:0.65rem; flex-wrap:wrap; gap:4px; }
+    .ch-card { padding:16px; gap:10px; }
+    #analysisTipsGrid { grid-template-columns:1fr !important; }
+  }
+  @media(max-width:360px){
+    .nav-links a { font-size:0.55rem; }
+    .logo { font-size:0.85rem; }
+    .hero h1 { font-size:1.6rem; }
+  }
 </style>
 </head>
 <body>
 
 <div class="ocean-bg" id="oceanBg"></div>
 
-<!-- NAV -->
 <nav>
   <div class="nav-inner">
     <a href="#" class="logo"><span class="logo-drop">💧</span> WaterWise</a>
     <ul class="nav-links">
+      <li><a href="#challenges-sec">Challenges</a></li>
       <li><a href="#calculator">Calculator</a></li>
       <li><a href="#results">Analysis</a></li>
       <li><a href="#tips-sec">Tips</a></li>
@@ -164,14 +262,13 @@
   </div>
 </nav>
 
-<!-- HERO -->
 <section class="hero">
   <div class="wrapper">
     <div class="hero-content">
       <div class="hero-tag">💧 Water Conservation Tool</div>
       <h1>Know Your <span>Water</span><br>Footprint Today</h1>
       <p>Understand how much water you use daily across every household activity — and discover powerful ways to conserve one of Earth's most precious resources.</p>
-      <a href="#calculator" class="cta-btn"><span>🔬</span> Start Analyzing</a>
+      <a href="#challenges-sec" class="cta-btn"><span>💧</span> Start Saving Water</a>
       <div class="hero-stats">
         <div>
           <div class="hero-stat-val">142 L</div>
@@ -209,7 +306,43 @@
   </div>
 </section>
 
-<!-- CALCULATOR -->
+<section id="challenges-sec">
+  <div class="wrapper">
+    <div class="challenges-header">
+      <div class="section-label">Take Action</div>
+      <h2 class="section-title">Water Challenges</h2>
+      <p class="section-sub">Complete daily, weekly, and monthly challenges to build water-saving habits. Track your progress and earn XP!</p>
+    </div>
+
+    <div class="xp-bar-card">
+      <div class="xp-header"><span>🏆 Your Progress</span><span><strong id="xpTotal">0</strong> XP</span></div>
+      <div class="xp-track"><div class="xp-fill" id="xpFill" style="width:0%"></div></div>
+      <div class="xp-level" id="xpLevel">Level 1 — Ripple</div>
+      <div class="streak-card">
+        <div class="streak-fire-wrap" id="streakFireWrap">🔥</div>
+        <div><span class="streak-day-num" id="streakCurrent">0</span></div>
+        <div class="streak-day-label">Day Streak</div>
+        <div class="streak-msg" id="streakMsg">Start your streak — stay under 135 L/day!</div>
+        <div class="streak-bar-track" id="streakBarWrap" style="display:none">
+          <div class="streak-bar-fill" id="streakBarFill" style="width:0%"></div>
+        </div>
+        <div class="streak-meta">
+          <span>🏅 Best: <strong id="streakBest">0</strong> days</span>
+          <span id="streakNext">Next: <strong>—</strong></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="challenge-tabs">
+      <button class="ch-tab active" onclick="switchChTab('daily')">📅 Daily</button>
+      <button class="ch-tab" onclick="switchChTab('weekly')">📆 Weekly</button>
+      <button class="ch-tab" onclick="switchChTab('monthly')">🗓️ Monthly</button>
+    </div>
+
+    <div class="challenge-grid" id="challengeGrid"></div>
+  </div>
+</section>
+
 <section id="calculator">
   <div class="wrapper">
     <div class="section-label">Daily Estimator</div>
@@ -305,7 +438,6 @@
   </div>
 </section>
 
-<!-- RESULTS -->
 <section id="results">
   <div class="wrapper">
     <div class="section-label">Your Analysis</div>
@@ -322,17 +454,17 @@
               <stop offset="100%" stop-color="#f87171"/>
             </linearGradient>
           </defs>
-          <path d="M 30 165 A 80 80 0 0 1 190 165" fill="none" stroke="rgba(34,211,238,0.1)" stroke-width="16" stroke-linecap="round"/>
-          <path id="gaugeFill" d="M 30 165 A 80 80 0 0 1 190 165" fill="none" stroke="url(#gaugeGrad)" stroke-width="16" stroke-linecap="round" stroke-dasharray="251.2" stroke-dashoffset="251.2" style="transition:stroke-dashoffset 1.4s cubic-bezier(.4,0,.2,1)"/>
-          <line id="gaugeNeedle" x1="110" y1="165" x2="110" y2="105" stroke="rgba(240,249,255,0.9)" stroke-width="2.5" stroke-linecap="round" style="transform-origin:110px 165px;transform:rotate(-90deg);transition:transform 1.4s cubic-bezier(.4,0,.2,1)"/>
-          <circle cx="110" cy="165" r="5" fill="var(--aqua)"/>
-          <text x="22" y="186" fill="rgba(240,249,255,0.4)" font-size="10" font-family="DM Sans">0</text>
-          <text x="98" y="92" fill="rgba(240,249,255,0.4)" font-size="10" font-family="DM Sans">150</text>
-          <text x="188" y="186" fill="rgba(240,249,255,0.4)" font-size="10" font-family="DM Sans">300+</text>
+          <path d="M 30 165 A 80 80 0 0 1 190 165" fill="none" stroke="rgba(34,211,238,0.06)" stroke-width="12" stroke-linecap="round"/>
+          <path id="gaugeFill" d="M 30 165 A 80 80 0 0 1 190 165" fill="none" stroke="url(#gaugeGrad)" stroke-width="12" stroke-linecap="round" stroke-dasharray="251.2" stroke-dashoffset="251.2" style="transition:stroke-dashoffset 1.4s cubic-bezier(.4,0,.2,1)"/>
+          <line id="gaugeNeedle" x1="110" y1="165" x2="110" y2="110" stroke="rgba(240,249,255,0.85)" stroke-width="2" stroke-linecap="round" style="transform-origin:110px 165px;transform:rotate(-90deg);transition:transform 1.4s cubic-bezier(.4,0,.2,1)"/>
+          <circle cx="110" cy="165" r="4" fill="var(--aqua)"/>
+          <text x="22" y="198" fill="rgba(240,249,255,0.55)" font-size="10" font-family="DM Sans" font-weight="500">0</text>
+          <text x="98" y="75" fill="rgba(240,249,255,0.55)" font-size="10" font-family="DM Sans" font-weight="500">150</text>
+          <text x="188" y="198" fill="rgba(240,249,255,0.55)" font-size="10" font-family="DM Sans" font-weight="500">300+</text>
         </svg>
         <div class="gauge-label">
           <div class="gauge-num" id="gaugeNum">—</div>
-          <div class="gauge-unit">litres / day (per person)</div>
+          <div class="gauge-unit">L / day per person</div>
         </div>
       </div>
       <div class="gauge-status" id="gaugeStatus">—</div>
@@ -374,10 +506,20 @@
         <div class="bar-track"><div class="bar-fill" style="width:17%;background:linear-gradient(90deg,#34d399,#10b981)"></div></div>
       </div>
     </div>
+
+    <div class="charts-row" id="analysisTipsRow" style="display:none">
+      <div class="chart-card" style="grid-column:1/-1">
+        <div class="chart-title">💡 Personalized Conservation Tips</div>
+        <div class="tips-grid" id="analysisTipsGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px"></div>
+      </div>
+    </div>
+
+    <div style="text-align:center;margin-top:24px">
+      <button class="btn-pdf" onclick="downloadImage()">🖼️ Download Report (Image)</button>
+    </div>
   </div>
 </section>
 
-<!-- TIPS — ALWAYS VISIBLE -->
 <section id="tips-sec">
   <div class="wrapper">
     <div class="tips-header">
@@ -406,7 +548,7 @@
         <span class="tip-emoji">🚿</span>
         <div class="tip-body">
           <div class="tip-title">Install a Low-Flow Showerhead</div>
-          <div class="tip-text">Standard showerheads use 10–12 L/min. Low-flow models use just 5–7 L/min with no noticeable difference in pressure. One-time change, lifelong savings.</div>
+          <div class="tip-text">Standard showerheads use 10-12 L/min. Low-flow models use just 5-7 L/min with no noticeable difference in pressure. One-time change, lifelong savings.</div>
           <span class="tip-save">Saves ~18,000 L/year</span>
         </div>
       </div>
@@ -415,7 +557,7 @@
         <span class="tip-emoji">🚽</span>
         <div class="tip-body">
           <div class="tip-title">Use a Dual-Flush Toilet</div>
-          <div class="tip-text">Old single-flush toilets use 9–12 L per flush. Modern dual-flush systems use just 3–6 L. If you can't replace it, place a filled bottle in the tank to reduce volume.</div>
+          <div class="tip-text">Old single-flush toilets use 9-12 L per flush. Modern dual-flush systems use just 3-6 L. If you can't replace it, place a filled bottle in the tank to reduce volume.</div>
           <span class="tip-save">Saves ~10,000 L/year</span>
         </div>
       </div>
@@ -487,7 +629,7 @@
         <span class="tip-emoji">🚗</span>
         <div class="tip-body">
           <div class="tip-title">Use a Bucket to Wash Your Vehicle</div>
-          <div class="tip-text">A hosepipe uses 150–200 litres to wash a car. Two buckets of water achieve the same result using only 15–20 litres. That's a 90% reduction per wash.</div>
+          <div class="tip-text">A hosepipe uses 150-200 litres to wash a car. Two buckets of water achieve the same result using only 15-20 litres. That's a 90% reduction per wash.</div>
           <span class="tip-save">Saves ~5,000 L/year</span>
         </div>
       </div>
@@ -611,10 +753,480 @@ function calculate(){
   document.getElementById('cmpYours').textContent=Math.round(perPerson)+' L';
   setTimeout(()=>{document.getElementById('barYours').style.width=Math.min(perPerson/300*100,100)+'%';},200);
 
+  showAnalysisTips({shower:showerL,toilet:toiletL,handwash:handwashL,kitchen:dishesL+drinkingL,laundry:laundryL,garden:gardenL});
+
+  updateStreak(perPerson);
+
   const res=document.getElementById('results');
   res.classList.add('visible');
   setTimeout(()=>res.scrollIntoView({behavior:'smooth',block:'start'}),100);
 }
+
+const STREAK_LIMIT=135;
+const STREAK_MILESTONES=[{at:3,label:'3-Day Habit Builder',xp:50},
+  {at:7,label:'One Full Week!',xp:100},
+  {at:14,label:'Two Weeks Strong!',xp:200},
+  {at:30,label:'30-Day Legend!',xp:500}];
+
+function getStreak(){
+  try{return JSON.parse(localStorage.getItem('ww_streak'))||{count:0,lastDate:'',best:0,bonuses:[]}}catch(e){return{count:0,lastDate:'',best:0,bonuses:[]}}
+}
+
+function saveStreak(s){localStorage.setItem('ww_streak',JSON.stringify(s))}
+
+function updateStreak(perPerson){
+  const s=getStreak();
+  const today=new Date().toDateString();
+  const yesterday=new Date(Date.now()-86400000).toDateString();
+  if(perPerson<=STREAK_LIMIT){
+    if(s.lastDate===today){renderStreak();return}
+    else if(s.lastDate===yesterday){s.count++;s.best=Math.max(s.count,s.best)}
+    else{s.count=1}
+    s.lastDate=today;
+    // check milestone bonuses
+    const m=STREAK_MILESTONES.find(m=>m.at===s.count);
+    if(m&&!s.bonuses.includes(m.at)){
+      s.bonuses.push(m.at);
+      saveStreak(s);
+      let xp=parseInt(localStorage.getItem('ww_xp')||'0');
+      xp+=m.xp;
+      localStorage.setItem('ww_xp',String(xp));
+      renderStreak(true,m);
+      renderChallenges();
+      return;
+    }
+  } else {
+    s.count=0;
+  }
+  saveStreak(s);
+  renderStreak(false);
+}
+
+function renderStreak(bonus,milestone){
+  const s=getStreak();
+  const c=s.count;
+  const el=document.getElementById('streakCurrent');
+  el.textContent=c;
+  el.className='streak-day-num'+(c>=3?' hot':'');
+
+  const fire=document.getElementById('streakFireWrap');
+  let flames='🔥';
+  if(c>=30) flames='🔥🔥🔥🔥🔥';
+  else if(c>=14) flames='🔥🔥🔥🔥';
+  else if(c>=7) flames='🔥🔥🔥';
+  else if(c>=3) flames='🔥🔥';
+  fire.textContent=flames;
+  fire.className='streak-fire-wrap'+(c>=14?' mega':'');
+
+  const msg=document.getElementById('streakMsg');
+  if(c===0) msg.textContent='Start your streak — stay under 135 L/day!';
+  else if(c<3) msg.textContent='Keep going! Tomorrow makes it a streak!';
+  else if(c<7) msg.textContent='🔥 3-day habit forming! You\'re on fire!';
+  else if(c<14) msg.textContent='🔥🔥 One week strong! Incredible consistency!';
+  else if(c<30) msg.textContent='🔥🔥🔥 Two weeks of excellence! Water hero!';
+  else msg.textContent='🔥🔥🔥🔥🔥 30-Day Legend! You are unstoppable!';
+  msg.className='streak-msg'+(c>=14?' legend':c>=7?' hot':c>=3?' bright':'');
+
+  const barWrap=document.getElementById('streakBarWrap');
+  const barFill=document.getElementById('streakBarFill');
+  const nextEl=document.getElementById('streakNext');
+  const nextMs=STREAK_MILESTONES.find(m=>m.at>c);
+  if(c>0&&nextMs){
+    barWrap.style.display='';
+    const prevMs=STREAK_MILESTONES.filter(m=>m.at<=c).pop()||{at:0};
+    const pct=((c-prevMs.at)/(nextMs.at-prevMs.at))*100;
+    barFill.style.width=Math.min(pct,100)+'%';
+    nextEl.innerHTML=`Next: <strong>${nextMs.at}-day</strong> (${nextMs.xp} XP)`;
+  } else {
+    barWrap.style.display=c>0?'':'none';
+    nextEl.innerHTML=c>0?'Next: <strong>—</strong>':'';
+  }
+
+  document.getElementById('streakBest').textContent=s.best;
+
+  if(bonus&&milestone){
+    const b=document.createElement('div');
+    b.className='streak-bonus';
+    b.textContent=`🎉 ${milestone.label} — +${milestone.xp} XP bonus!`;
+    document.querySelector('.streak-card').appendChild(b);
+    setTimeout(()=>{if(b.parentNode)b.remove()},4000);
+  }
+}
+
+const categoryTips={
+  shower:[
+    {icon:'⏱️',title:'Shorter Showers',text:'Cut from 10 to 5 minutes to save 40 L/day. Use a playlist to time yourself.',save:'~14,600 L/year'},
+    {icon:'🚿',title:'Low-Flow Showerhead',text:'Replace with a 5-7 L/min model — same pressure, half the water.',save:'~18,000 L/year'},
+    {icon:'🪣',title:'Bucket the Cold Water',text:'Collect the cold water while waiting for hot water — use it for plants.',save:'~3,650 L/year'},
+  ],
+  toilet:[
+    {icon:'🚽',title:'Dual-Flush Mechanism',text:'Install a dual-flush system — 3 L for liquid, 6 L for solid.',save:'~10,000 L/year'},
+    {icon:'💧',title:'Check for Leaks',text:'Drop food colouring in the tank — if colour appears in the bowl, you have a leak.',save:'~2,000 L/year'},
+    {icon:'🧱',title:'Bottle in the Tank',text:'Place a filled bottle in the cistern to reduce water per flush.',save:'~3,000 L/year'},
+  ],
+  handwash:[
+    {icon:'🚰',title:'Turn Off While Scrubbing',text:'Wet hands, turn off tap, scrub for 20s, then rinse. Saves 6 L/min.',save:'~4,000 L/year'},
+    {icon:'🧴',title:'Soap First, Then Water',text:'Don\'t run water while lathering — just wet, lather, rinse.',save:'~2,500 L/year'},
+    {icon:'📏',title:'Aerate Your Tap',text:'A simple screw-on aerator reduces flow without reducing pressure.',save:'~3,000 L/year'},
+  ],
+  kitchen:[
+    {icon:'🧽',title:'Soak Dishes',text:'Use a basin or sink plug instead of running water continuously.',save:'~7,000 L/year'},
+    {icon:'🥦',title:'Wash Veggies in a Bowl',text:'Rinse fruits and vegetables in a bowl instead of under running water.',save:'~1,500 L/year'},
+    {icon:'🧊',title:'Keep Drinking Water in the Fridge',text:'Instead of running the tap until cold, keep a jug in the fridge.',save:'~2,500 L/year'},
+  ],
+  laundry:[
+    {icon:'👕',title:'Full Loads Only',text:'Teach everyone to wait for a full load before running the machine.',save:'~5,000 L/year'},
+    {icon:'🌡️',title:'Use Cold Water',text:'Cold washes save energy and water — most detergents work well at 20°C.',save:'~2,000 L/year'},
+    {icon:'⚡',title:'High-Efficiency Machine',text:'Front-loading HE machines use 40% less water than top-loaders.',save:'~10,000 L/year'},
+  ],
+  garden:[
+    {icon:'🌿',title:'Water at Dusk or Dawn',text:'Morning/evening watering reduces evaporation by up to 50%.',save:'~8,000 L/year'},
+    {icon:'🪣',title:'Rainwater Harvesting',text:'Install a barrel to collect rooftop runoff — free water for your garden.',save:'~20,000 L/year'},
+    {icon:'🌱',title:'Drip Irrigation',text:'Drip systems deliver water directly to roots — much less waste than sprinklers.',save:'~12,000 L/year'},
+  ],
+};
+
+function showAnalysisTips(values){
+  const row=document.getElementById('analysisTipsRow');
+  const grid=document.getElementById('analysisTipsGrid');
+  const sorted=Object.entries(values).sort((a,b)=>b[1]-a[1]);
+  const top=sorted.slice(0,4).filter(([_,v])=>v>0);
+  if(top.length===0){row.style.display='none';return}
+  row.style.display='';
+  grid.innerHTML=top.map(([cat,_])=>{
+    const tips=categoryTips[cat]||[];
+    return tips.slice(0,1).map(t=>`
+      <div class="tip-card" style="background:var(--glass);border:1px solid var(--border);border-radius:14px;padding:16px;backdrop-filter:blur(12px)">
+        <span class="tip-emoji" style="font-size:1.5rem;display:block;margin-bottom:6px">${t.icon}</span>
+        <div class="tip-body">
+          <div class="tip-title" style="font-weight:600;font-size:0.85rem;color:var(--foam);margin-bottom:4px">${t.title}</div>
+          <div class="tip-text" style="font-size:0.78rem;color:rgba(240,249,255,0.55);line-height:1.5;margin-bottom:6px">${t.text}</div>
+          <span class="tip-save" style="font-size:0.72rem;color:var(--aqua)">Saves ${t.save}</span>
+        </div>
+      </div>
+    `).join('');
+  }).join('');
+}
+
+/* ═══════════════════════════════════════════
+   CHALLENGES SYSTEM
+   ═══════════════════════════════════════════ */
+
+const challengesData=[
+  {id:'d1',type:'daily',icon:'🚿',title:'5-Minute Shower',desc:'Finish your shower in 5 minutes or less — saves ~40 L instantly.',xp:10},
+  {id:'d2',type:'daily',icon:'🪥',title:'Turn Off Tap While Brushing',desc:'Save 6 L/min by turning off the tap while brushing.',xp:10},
+  {id:'d3',type:'daily',icon:'💧',title:'Check for Leaks',desc:'Inspect every tap in your home for drips.',xp:10},
+  {id:'d4',type:'daily',icon:'🧽',title:'Soak Dishes',desc:'Use a basin or sink plug instead of running water.',xp:10},
+  {id:'d5',type:'daily',icon:'🪣',title:'Reuse Warm-Up Water',desc:'Collect cold shower water in a bucket for plants.',xp:10},
+  {id:'w1',type:'weekly',icon:'🔧',title:'Fix a Dripping Tap',desc:'Replace worn washers — a drip wastes ~11,000 L/year.',xp:50},
+  {id:'w2',type:'weekly',icon:'👕',title:'Full Load Laundry Only',desc:'Wait for a full load before running the machine.',xp:50},
+  {id:'w3',type:'weekly',icon:'🌿',title:'Water Garden at Dusk',desc:'Evening watering reduces evaporation by up to 50%.',xp:50},
+  {id:'w4',type:'weekly',icon:'🚗',title:'Bucket Car Wash',desc:'Wash your vehicle with buckets instead of a hose.',xp:50},
+  {id:'m1',type:'monthly',icon:'🚿',title:'Install Low-Flow Showerhead',desc:'Uses 5-7 L/min instead of 10-12 L/min. Saves ~18,000 L/year.',xp:200},
+  {id:'m2',type:'monthly',icon:'📊',title:'Reduce Usage by 10%',desc:'Re-run the calculator to measure your reduction.',xp:200},
+  {id:'m3',type:'monthly',icon:'🪣',title:'Set Up Rainwater Barrel',desc:'Harvest hundreds of litres from your rooftop.',xp:200},
+  // ── BONUS (LOCKED) ──
+  {id:'d6',type:'daily',icon:'💪',title:'Skip One Flush',desc:'Follow "if it\'s yellow, let it mellow" for one day.',xp:25,unlockAt:3},
+  {id:'d7',type:'daily',icon:'🚰',title:'Drink Tap Water',desc:'Skip bottled water for the day — choose tap water instead.',xp:25,unlockAt:5},
+  {id:'w5',type:'weekly',icon:'📋',title:'Water Audit',desc:'Walk through your home and list every water fixture.',xp:100,unlockAt:2},
+  {id:'w6',type:'weekly',icon:'♻️',title:'Greywater Challenge',desc:'Reuse kitchen or bath water for your garden at least once.',xp:100,unlockAt:4},
+  {id:'m4',type:'monthly',icon:'📉',title:'Cut Usage by 20%',desc:'Re-run the calculator — aim for 20% reduction from your baseline.',xp:400,unlockAt:2},
+];
+
+const levels=[
+  {name:'Ripple',   minXP:0},
+  {name:'Stream',   minXP:100},
+  {name:'River',    minXP:300},
+  {name:'Wave',     minXP:600},
+  {name:'Ocean',    minXP:1000},
+];
+
+function getChState(){
+  try{return JSON.parse(localStorage.getItem('ww_challenges'))||{}}catch(e){return{}}
+}
+function saveChState(s){localStorage.setItem('ww_challenges',JSON.stringify(s))}
+
+function chIsExpired(completion,type){
+  const now=new Date(),comp=new Date(completion.completedAt);
+  if(type==='daily') return comp.toDateString()!==now.toDateString();
+  if(type==='weekly'){
+    const m=d=>{const dt=new Date(d);dt.setDate(dt.getDate()-(dt.getDay()||7)+1);return dt.toDateString()};
+    return m(comp)!==m(now);
+  }
+  if(type==='monthly') return comp.getMonth()!==now.getMonth()||comp.getFullYear()!==now.getFullYear();
+  return true;
+}
+
+function getActiveCompletions(){
+  const state=getChState(),active={};
+  for(const[id,completion]of Object.entries(state)){
+    const ch=challengesData.find(c=>c.id===id);
+    if(ch&&!chIsExpired(completion,ch.type)) active[id]=completion;
+  }
+  return active;
+}
+
+function getTotalXP(){
+  const active=getActiveCompletions();
+  return Object.entries(active).reduce((sum,[id])=>sum+((challengesData.find(c=>c.id===id)||{}).xp||0),0);
+}
+
+let currentChTab='daily';
+function switchChTab(type){
+  currentChTab=type;
+  document.querySelectorAll('.ch-tab').forEach((t,i)=>{
+    t.classList.toggle('active',['daily','weekly','monthly'][i]===type);
+  });
+  renderChallenges();
+  document.getElementById('challengeGrid').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function completeChallenge(id){
+  const state=getChState();
+  state[id]={completedAt:new Date().toISOString()};
+  saveChState(state);
+  renderChallenges();
+}
+
+function renderChallenges(){
+  const grid=document.getElementById('challengeGrid');
+  const filtered=challengesData.filter(c=>c.type===currentChTab);
+  const active=getActiveCompletions();
+  const completedCount=filtered.filter(c=>!!active[c.id]).length;
+  grid.innerHTML=filtered.map(ch=>{
+    const done=!!active[ch.id];
+    const locked=!done&&ch.unlockAt&&completedCount<ch.unlockAt;
+    return `<div class="ch-card${done?' ch-done':''}${locked?' ch-locked':''}">
+      ${locked?`<span class="ch-lock-icon">🔒</span>`:`<span class="ch-icon">${ch.icon}</span>`}
+      <div class="ch-body">
+        <div class="ch-title">${ch.title}</div>
+        <div class="ch-desc">${locked?'Complete '+(ch.unlockAt-completedCount)+' more '+(currentChTab==='daily'?'daily':currentChTab==='weekly'?'weekly':'monthly')+' challenges to unlock':ch.desc}</div>
+        <div class="ch-meta">
+          ${locked?`<span class="ch-xp" style="opacity:0.5">+${ch.xp} XP</span><span class="ch-badge" style="background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.25);color:#f87171">🔒 Locked</span>`:done?`<span class="ch-xp">+${ch.xp} XP</span><span class="ch-badge">✅ Done</span>`:`<span class="ch-xp">+${ch.xp} XP</span><button class="ch-btn" onclick="completeChallenge('${ch.id}')">Mark Complete</button>`}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  const available=filtered.filter(c=>!c.unlockAt||completedCount>=c.unlockAt).length;
+  const allDone=completedCount>=available&&available>0;
+  if(allDone){
+    const next=getNextReset(currentChTab);
+    const days=Math.round((next-new Date())/(86400000));
+    const hrs=Math.round((next-new Date())/(3600000)%24);
+    let timeStr;
+    if(days>1) timeStr=`in ${days} days`;
+    else if(days===1) timeStr=`tomorrow`;
+    else timeStr=`in ${hrs} hour${hrs>1?'s':''}`;
+    grid.innerHTML+=`<div class="ch-refresh-msg"><span>🎉</span><p><strong>All ${currentChTab} challenges completed!</strong><br>New challenges will be available ${timeStr}.</p></div>`;
+  }
+
+  const xp=getTotalXP();
+  document.getElementById('xpTotal').textContent=xp;
+  let lv=levels[0];
+  for(const l of levels) if(xp>=l.minXP) lv=l;
+  const lvIdx=levels.indexOf(lv);
+  document.getElementById('xpLevel').textContent=`Level ${lvIdx+1} — ${lv.name}`;
+
+  const prevLv=parseInt(localStorage.getItem('ww_last_level')||'0');
+  if(lvIdx>prevLv){
+    localStorage.setItem('ww_last_level',String(lvIdx));
+    setTimeout(()=>showAchievement(lvIdx+1,lv.name),400);
+  }
+
+  const nxtIdx=lvIdx+1;
+  if(nxtIdx<levels.length){
+    const pct=((xp-lv.minXP)/(levels[nxtIdx].minXP-lv.minXP))*100;
+    document.getElementById('xpFill').style.width=Math.min(pct,100)+'%';
+  } else {
+    document.getElementById('xpFill').style.width='100%';
+  }
+}
+
+function getNextReset(type){
+  const n=new Date();
+  const r=new Date(n);
+  if(type==='daily'){
+    r.setDate(r.getDate()+1);
+    r.setHours(0,0,0,0);
+  } else if(type==='weekly'){
+    const d=r.getDay();
+    r.setDate(r.getDate()+(d===0?1:8-d));
+    r.setHours(0,0,0,0);
+  } else {
+    r.setMonth(r.getMonth()+1,1);
+    r.setHours(0,0,0,0);
+  }
+  return r;
+}
+
+const icons=['🌱','💧','🌊','🏄','🌍'];
+function showAchievement(num,name){
+  const o=document.createElement('div');o.className='achieve-overlay';o.id='achieveOverlay';
+  o.innerHTML=`<div class="achieve-card">
+    <div class="achieve-stars">⭐ ✨ ⭐</div>
+    <span class="achieve-icon">${icons[num-1]||'🏆'}</span>
+    <div class="achieve-title">Level Up!</div>
+    <div class="achieve-level">${num}. ${name}</div>
+    <div class="achieve-sub">${num===5?'You\'ve reached the highest level! Amazing dedication to water conservation.':'You\'re building incredible water-saving habits. Keep going!'}</div>
+    <button class="achieve-btn" onclick="dismissAchievement()">🎉 Awesome!</button>
+  </div>`;
+  document.body.appendChild(o);
+  o.addEventListener('click',e=>{if(e.target===o)dismissAchievement()});
+}
+function dismissAchievement(){
+  const o=document.getElementById('achieveOverlay');
+  if(o){o.style.opacity='0';o.style.transition='opacity .3s';setTimeout(()=>{if(o.parentNode)o.parentNode.removeChild(o);},300);}
+}
+
+renderChallenges();
+
+/* ═══════════════════════════════════════════
+   DOWNLOAD REPORT
+   ═══════════════════════════════════════════ */
+
+function downloadImage(){
+  const btn=document.querySelector('.btn-pdf');
+  btn.textContent='⏳ Generating Image...';
+  btn.disabled=true;
+
+  const{shower,toilet,handwash,dishes,laundry,garden,drinking,people}=state;
+  const ppl=people.val;
+  const showerL=shower.val*8,toiletL=toilet.val*6,handwashL=handwash.val*1.5,drinkingL=drinking.val;
+  const dishesL=dishes.val*20/ppl,laundryL=(laundry.val/7)*60/ppl,gardenL=garden.val*15/ppl;
+  const pp=Math.round(showerL+toiletL+handwashL+drinkingL+dishesL+laundryL+gardenL);
+  const hd=pp*ppl,hm=hd*30,hy=hd*365;
+
+  const st=pp<80?'Excellent':pp<135?'Good':pp<185?'Average':'High Usage';
+  const sc=pp<80?'#059669':pp<135?'#0891b2':pp<185?'#d97706':'#dc2626';
+  const today=new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'});
+
+  const cats=[
+    {l:'Shower',v:Math.round(showerL)},{l:'Toilet',v:Math.round(toiletL)},{l:'Handwashing',v:Math.round(handwashL)},
+    {l:'Kitchen',v:Math.round(dishesL+drinkingL)},{l:'Laundry',v:Math.round(laundryL)},{l:'Garden / Outdoor',v:Math.round(gardenL)}
+  ];
+  const maxCat=Math.max(...cats.map(c=>c.v),1);
+
+  const tips=pp>=185?[
+    'Install low-flow showerheads and faucet aerators — they cut water use by 30-50%.',
+    'Shorten showers to under 5 minutes. Every minute saves ~8 litres.',
+    'Fix dripping taps immediately. One drip per second wastes 11,000 L/year.',
+    'Run washing machines and dishwashers only on full loads.',
+    'Use a bucket instead of a hose to wash your vehicle.'
+  ]:pp>=135?[
+    'Shorten your shower by 2 minutes — saves ~5,800 L per person per year.',
+    'Turn off the tap while brushing and shaving.',
+    'Collect cold shower warm-up water for plants.',
+    'Soak dishes in a basin instead of rinsing under running water.',
+    'Water your garden in the early morning or evening to reduce evaporation.'
+  ]:[
+    'Great work! Keep maintaining your low water footprint.',
+    'Encourage friends and family to track their water usage.',
+    'Consider installing a rainwater harvesting system.',
+    'Check for hidden leaks in toilets and under sinks.',
+    'Upgrade to high-efficiency appliances when possible.'
+  ];
+
+  const fm=n=>n>=1000?(n/1000).toFixed(1)+'k':Math.round(n);
+
+  const div=document.createElement('div');
+  div.style.cssText='position:fixed;left:0;top:0;width:800px;opacity:0.999;pointer-events:none;z-index:-1000;';
+  div.innerHTML=`
+<div style="font-family:Arial,Helvetica,sans-serif;color:#1a202c;width:760px;margin:0 auto;padding:0;background:#ffffff;">
+  <div style="background:linear-gradient(135deg,#0b1d3a,#0e3460);padding:44px 40px 32px;">
+    <div style="font-size:11px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.55);margin-bottom:10px;">WaterWise</div>
+    <div style="font-size:28px;font-weight:700;color:#ffffff;margin-bottom:4px;">Water Consumption Report</div>
+    <div style="font-size:13px;color:rgba(255,255,255,0.5);">Prepared on ${today} &mdash; ${ppl} person household</div>
+  </div>
+  <div style="padding:30px 40px 16px;">
+    <div style="display:flex;gap:14px;margin-bottom:32px;">
+      <div style="flex:1;background:#f0f9ff;border:1px solid #e2e8f0;border-radius:10px;padding:20px 14px;text-align:center;">
+        <div style="font-size:11px;color:#64748b;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;">Per Person / Day</div>
+        <div style="font-size:32px;font-weight:700;color:#0891b2;">${pp}<span style="font-size:13px;color:#94a3b8;font-weight:400;"> L</span></div>
+      </div>
+      <div style="flex:1;background:#f0f9ff;border:1px solid #e2e8f0;border-radius:10px;padding:20px 14px;text-align:center;">
+        <div style="font-size:11px;color:#64748b;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;">Household / Day</div>
+        <div style="font-size:32px;font-weight:700;color:#0891b2;">${fm(hd)}<span style="font-size:13px;color:#94a3b8;font-weight:400;"> L</span></div>
+      </div>
+      <div style="flex:1;background:#f0f9ff;border:1px solid #e2e8f0;border-radius:10px;padding:20px 14px;text-align:center;">
+        <div style="font-size:11px;color:#64748b;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;">Status</div>
+        <div style="font-size:14px;font-weight:700;color:${sc};padding:6px 14px;background:rgba(${pp<80?'5,150,105':pp<135?'8,145,178':pp<185?'217,119,6':'220,38,38'},0.1);border-radius:999px;display:inline-block;">${st}</div>
+      </div>
+    </div>
+    <h2 style="font-size:16px;font-weight:700;color:#0b1d3a;margin:0 0 12px;padding-bottom:7px;border-bottom:2px solid #0891b2;">Usage Breakdown</h2>
+    <table style="width:100%;border-collapse:collapse;margin-bottom:30px;">
+      <thead><tr style="background:#f8fafc;border-bottom:2px solid #e2e8f0;">
+        <th style="padding:8px 12px;text-align:left;font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;">Category</th>
+        <th style="padding:8px 12px;text-align:right;font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;">Litres / Day</th>
+        <th style="padding:8px 12px;text-align:right;font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;">Share</th>
+        <th style="padding:8px 0;width:120px;"></th>
+      </tr></thead>
+      <tbody>${cats.map(c=>`<tr style="border-bottom:1px solid #f1f5f9;">
+        <td style="padding:9px 12px;font-size:13px;">${c.l}</td>
+        <td style="padding:9px 12px;text-align:right;font-size:13px;font-weight:600;color:#1a202c;">${c.v}</td>
+        <td style="padding:9px 12px;text-align:right;font-size:12px;color:#64748b;">${pp?Math.round(c.v/pp*100):0}%</td>
+        <td style="padding:9px 0;"><div style="height:7px;background:#f1f5f9;border-radius:999px;overflow:hidden;"><div style="height:100%;width:${Math.round(c.v/maxCat*100)}%;background:#0891b2;border-radius:999px;"></div></div></td>
+      </tr>`).join('')}</tbody>
+      <tfoot><tr style="border-top:2px solid #0891b2;background:#f8fafc;">
+        <td style="padding:9px 12px;font-weight:700;font-size:13px;">Total</td>
+        <td style="padding:9px 12px;text-align:right;font-weight:700;font-size:13px;color:#0891b2;">${pp}</td>
+        <td style="padding:9px 12px;text-align:right;font-size:12px;color:#64748b;">100%</td>
+        <td style="padding:9px 0;"></td>
+      </tr></tfoot>
+    </table>
+    <h2 style="font-size:16px;font-weight:700;color:#0b1d3a;margin:0 0 12px;padding-bottom:7px;border-bottom:2px solid #0891b2;">Projections</h2>
+    <div style="display:flex;gap:12px;margin-bottom:30px;">
+      ${[{l:'Daily',v:hd,u:'whole household'},{l:'Monthly (30 days)',v:hm,u:'estimated'},{l:'Yearly (365 days)',v:hy,u:'estimated'}].map(p=>`
+      <div style="flex:1;background:#ffffff;border:1px solid #e2e8f0;border-radius:8px;padding:16px 12px;text-align:center;">
+        <div style="font-size:11px;color:#64748b;margin-bottom:2px;text-transform:uppercase;letter-spacing:1px;">${p.l}</div>
+        <div style="font-size:20px;font-weight:700;color:#0b1d3a;">${fm(p.v)}<span style="font-size:12px;color:#94a3b8;font-weight:400;"> L</span></div>
+        <div style="font-size:10px;color:#94a3b8;">${p.u}</div>
+      </div>`).join('')}
+    </div>
+    <h2 style="font-size:16px;font-weight:700;color:#0b1d3a;margin:0 0 12px;padding-bottom:7px;border-bottom:2px solid #0891b2;">How You Compare</h2>
+    <div style="margin-bottom:30px;">
+      ${[{l:'Your Usage',v:pp,c:'#0891b2'},{l:'Indian Average (135 L)',v:135,c:'#d97706'},{l:'Global Average (185 L)',v:185,c:'#dc2626'},{l:'WHO Recommended Minimum (50 L)',v:50,c:'#059669'}].map(b=>`
+      <div style="margin-bottom:10px;">
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;">
+          <span style="color:#475569;">${b.l}</span>
+          <span style="font-weight:600;color:#1a202c;">${b.v} L</span>
+        </div>
+        <div style="height:10px;background:#f1f5f9;border-radius:999px;overflow:hidden;">
+          <div style="height:100%;width:${Math.round(b.v/300*100)}%;background:${b.c};border-radius:999px;"></div>
+        </div>
+      </div>`).join('')}
+    </div>
+    <h2 style="font-size:16px;font-weight:700;color:#0b1d3a;margin:0 0 12px;padding-bottom:7px;border-bottom:2px solid #0891b2;">Recommendations</h2>
+    <div style="background:#f0f9ff;border:1px solid #e2e8f0;border-radius:10px;padding:20px 24px;margin-bottom:20px;">
+      <ul style="margin:0;padding-left:18px;font-size:12px;color:#475569;line-height:1.9;">${tips.map(t=>`<li>${t}</li>`).join('')}</ul>
+    </div>
+  </div>
+  <div style="text-align:center;font-size:10px;color:#94a3b8;border-top:1px solid #e2e8f0;padding:16px 40px;">
+    Generated by WaterWise &mdash; ${today} &bull; Figures based on standard household consumption references. Savings are approximate.
+  </div>
+</div>`;
+
+  document.body.appendChild(div);
+  div.offsetHeight;
+
+  setTimeout(()=>{
+    html2canvas(div,{scale:2,backgroundColor:'#ffffff'}).then(canvas=>{
+      document.body.removeChild(div);
+      const link=document.createElement('a');
+      link.download='WaterWise-Report.png';
+      link.href=canvas.toDataURL('image/png');
+      link.click();
+      btn.textContent='🖼️ Download Report (Image)';
+      btn.disabled=false;
+    }).catch(()=>{
+      if(document.body.contains(div)) document.body.removeChild(div);
+      btn.textContent='🖼️ Download Report (Image)';
+      btn.disabled=false;
+    });
+  },200);
+}
+
+renderStreak();
 </script>
 </body>
 </html>
