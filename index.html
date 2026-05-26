@@ -307,7 +307,7 @@
       <h1>Know Your <span>Water</span><br>Footprint Today</h1>
       <p>Understand how much water you use daily across every household activity — and discover powerful ways to conserve one of Earth's most precious resources.</p>
       <div class="hero-ctas">
-        <a href="#challenges-sec" class="cta-btn" onclick="sfxClick();setTimeout(()=>sfxClick(),120)"><span>💧</span> Start Saving Water</a>
+        <a href="#challenges-sec" class="cta-btn" onclick="sfxStart()"><span>💧</span> Start Saving Water</a>
         <a href="#calculator" class="cta-btn-ghost" onclick="_t(1000,.15,'sine',.07);setTimeout(()=>_t(1400,.1,'sine',.05),80)"><span>📊</span> Calculate Your Usage</a>
       </div>
       <div class="hero-stats">
@@ -470,7 +470,7 @@
       </div>
     </div>
     <div class="calc-actions">
-      <button class="btn-primary" onclick="calculate()">💧 Analyze My Usage</button>
+      <button class="btn-primary" onclick="sfxAnalyze();setTimeout(calculate,100)">💧 Analyze My Usage</button>
       <button class="btn-secondary" onclick="resetForm()">↺ Reset</button>
     </div>
   </div>
@@ -738,6 +738,7 @@ function _n(d,v){const c=_a(),b=c.createBuffer(1,c.sampleRate*d,c.sampleRate),s=
 function sfxClick(){_t(800,.08,'square',.05);_t(1200,.05,'sine',.04)}
 function sfxTab(){_t(600,.1,'sine',.06)}
 function sfxAnalyze(){[523,659,784,1047].forEach((f,i)=>{const c=_a(),o=c.createOscillator(),g=c.createGain();o.type='triangle';o.frequency.value=f;const t=c.currentTime+i*.1;g.gain.setValueAtTime(.14,t);g.gain.exponentialRampToValueAtTime(.001,t+.3);o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+.3)})}
+function sfxStart(){_t(523,.15,'triangle',.08);setTimeout(()=>_t(784,.2,'triangle',.1),100)}
 
 const state={
   shower:  {val:8, min:1, max:30},
@@ -1182,6 +1183,7 @@ function renderChallenges(){
   const prevLv=parseInt(localStorage.getItem('ww_last_level')||'0');
   if(lvIdx>prevLv){
     localStorage.setItem('ww_last_level',String(lvIdx));
+    sfxAnalyze();
     setTimeout(()=>showAchievement(lvIdx+1,lv.name),400);
   }
 
@@ -1219,7 +1221,7 @@ function showAchievement(num,name){
     <span class="achieve-icon">${icons[num-1]||'🏆'}</span>
     <div class="achieve-title">Level Up!</div>
     <div class="achieve-level">${num}. ${name}</div>
-    <div class="achieve-sub">${num===5?'You\'ve reached the highest level! Amazing dedication to water conservation.':'You\'re building incredible water-saving habits. Keep going!'}</div>
+    <div class="achieve-sub">${num===5?'🌊 You\'ve reached the highest level! True discipline is showing up even when no one is watching. Keep conserving, keep inspiring — every drop counts.':'You\'re building incredible water-saving habits. Keep going!'}</div>
     <button class="achieve-btn" onclick="dismissAchievement()">🎉 Awesome!</button>
   </div>`;
   document.body.appendChild(o);
