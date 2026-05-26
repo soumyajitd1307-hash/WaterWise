@@ -171,11 +171,14 @@
   .streak-meta strong { color:rgba(240,249,255,0.6); font-weight:500; }
   .streak-bonus { font-size:0.78rem; color:#34d399; font-weight:600; animation:bonusPop .4s ease; }
   @keyframes bonusPop { 0%{transform:scale(0);opacity:0} 60%{transform:scale(1.25)} 100%{transform:scale(1);opacity:1} }
-  .challenge-tabs { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; position: relative; }
-  .ch-tab-indicator { position: absolute; top: 0; left: 0; height: 100%; width: 0; border-radius: 12px; background: rgba(34,211,238,0.18); border: 1px solid rgba(34,211,238,0.35); box-shadow: 0 0 24px rgba(34,211,238,0.12); transition: transform .35s cubic-bezier(.34,1.56,.64,1), width .35s cubic-bezier(.34,1.56,.64,1); pointer-events: none; }
-  .ch-tab { padding: 10px 18px; border-radius: 12px; border: 1px solid transparent; background: transparent; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); color: rgba(240,249,255,0.5); font-size: 0.82rem; font-weight: 500; cursor: pointer; font-family: 'DM Sans',sans-serif; transition: color .3s, font-weight .3s; position: relative; z-index: 1; }
-  .ch-tab:hover { color: var(--foam); }
+  .reveal { opacity: 0; transform: translateY(30px); transition: opacity .6s ease, transform .6s cubic-bezier(.25,.46,.45,.94); }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+  .challenge-tabs { display: flex; gap: 0; margin-bottom: 24px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .ch-tab { padding: 12px 24px; border: none; background: transparent; color: rgba(240,249,255,0.4); font-size: 0.85rem; font-weight: 500; cursor: pointer; font-family: 'DM Sans',sans-serif; position: relative; transition: color .25s; }
+  .ch-tab::after { content:''; position:absolute; bottom:0; left:50%; transform:translateX(-50%) scaleX(0); width:60%; height:2px; border-radius:2px; background:var(--aqua); transition:transform .25s cubic-bezier(.34,1.56,.64,1); }
+  .ch-tab:hover { color: rgba(240,249,255,0.7); }
   .ch-tab.active { color: var(--white); font-weight: 600; }
+  .ch-tab.active::after { transform:translateX(-50%) scaleX(1); }
   .challenge-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(300px,1fr)); gap: 14px; }
   .ch-card { background: var(--glass); border: 1px solid var(--border); border-radius: 16px; padding: 20px 22px; backdrop-filter: blur(16px) saturate(1.2); -webkit-backdrop-filter: blur(16px) saturate(1.2); box-shadow: var(--glass-depth), var(--glass-edge); display: flex; gap: 14px; align-items: flex-start; transition: all .2s; }
   .ch-card:hover { border-color: rgba(34,211,238,0.35); }
@@ -264,8 +267,9 @@
     .nav-links a { font-size:0.52rem; padding:4px 3px; }
     .logo { font-size:0.8rem; }
     .logo-drop { font-size:0.9rem; }
-    .challenge-tabs { gap:4px; }
-    .ch-tab { padding:8px 12px; font-size:0.75rem; }
+    .challenge-tabs { gap:0; }
+    .ch-tab { padding:10px 14px; font-size:0.78rem; }
+    .ch-tab::after { width:40%; }
     .input-card { padding:16px; }
     .calc-actions { flex-direction:column; }
     .btn-primary { min-width:0; }
@@ -275,7 +279,7 @@
     .cta-btn, .cta-btn-ghost, .btn-primary { min-height: 52px; padding: 16px 28px; }
     .ch-btn { padding: 10px 20px; font-size: 0.85rem; }
     .step-btn { width: 44px; height: 44px; }
-    nav { backdrop-filter: none; -webkit-backdrop-filter: none; background: rgba(6,14,31,0.85); }
+    nav { backdrop-filter: none; -webkit-backdrop-filter: none; background: #060e1f; }
     .hero { min-height: calc(92 * 1dvh); }
     .cta-btn:hover, .cta-btn-ghost:hover, .btn-primary:hover, .step-btn:hover, .ch-tab:hover, .ch-btn:hover, .top-btn:hover { transform: none; box-shadow: var(--glass-depth), var(--glass-edge); border-color: var(--border); background: transparent; }
     .cta-btn:active, .cta-btn-ghost:active { transform: scale(.96); background: rgba(34,211,238,0.12); border-color: var(--aqua); }
@@ -323,7 +327,7 @@
   </div>
 </nav>
 
-<section class="hero">
+<section class="hero reveal visible">
   <div class="wrapper">
     <div class="hero-content">
       <div class="hero-tag">💧 Water Conservation Tool</div>
@@ -333,7 +337,7 @@
         <a href="#challenges-sec" class="cta-btn" onclick="sfxStart()"><span>💧</span> Start Saving Water</a>
         <a href="#calculator" class="cta-btn-ghost" onclick="_t(1000,.15,'sine',.07);setTimeout(()=>_t(1400,.1,'sine',.05),80)"><span>📊</span> Calculate Your Usage</a>
       </div>
-      <div class="hero-stats">
+      <div class="hero-stats reveal visible">
         <div class="hero-stat">
           <div class="hero-stat-inner">
             <div class="hero-stat-val">142 L</div>
@@ -378,13 +382,13 @@
 
 <section id="challenges-sec">
   <div class="wrapper">
-    <div class="challenges-header">
+    <div class="challenges-header reveal">
       <div class="section-label">Take Action</div>
       <h2 class="section-title">Water Challenges</h2>
       <p class="section-sub">Complete daily, weekly, and monthly challenges to build water-saving habits. Track your progress and earn XP!</p>
     </div>
 
-    <div class="xp-bar-card">
+    <div class="xp-bar-card reveal">
       <div class="xp-header"><span>🏆 Your Progress</span><span><strong id="xpTotal">0</strong> XP</span></div>
       <div class="xp-track"><div class="xp-fill" id="xpFill" style="width:0%"></div></div>
       <div class="xp-level" id="xpLevel">Level 1 — Ripple</div>
@@ -403,8 +407,7 @@
       </div>
     </div>
 
-    <div class="challenge-tabs">
-      <div class="ch-tab-indicator"></div>
+    <div class="challenge-tabs reveal">
       <button class="ch-tab active" onclick="switchChTab('daily')">📅 Daily</button>
       <button class="ch-tab" onclick="switchChTab('weekly')">📆 Weekly</button>
       <button class="ch-tab" onclick="switchChTab('monthly')">🗓️ Monthly</button>
@@ -414,13 +417,13 @@
 </section>
 
 <section id="calculator">
-  <div class="wrapper">
+  <div class="wrapper reveal">
     <div class="section-label">Calculate</div>
     <h2 class="section-title">Estimate Your Daily Usage</h2>
     <p class="section-sub">Adjust the sliders below to match your household's typical daily habits. Our tool breaks down consumption across every category.</p>
 
     <div class="calc-grid">
-      <div class="input-card">
+      <div class="input-card reveal">
         <div class="input-card-header"><span class="input-icon">🚿</span>
           <div><div class="input-label">Shower</div><div class="input-sub">8 L/min average flow</div></div></div>
         <div class="stepper">
@@ -429,7 +432,7 @@
           <button class="step-btn" onclick="step('shower',1)">+</button>
         </div>
       </div>
-      <div class="input-card">
+      <div class="input-card reveal">
         <div class="input-card-header"><span class="input-icon">🚽</span>
           <div><div class="input-label">Toilet Flushes</div><div class="input-sub">6 L per flush average</div></div></div>
         <div class="stepper">
@@ -447,7 +450,7 @@
           <button class="step-btn" onclick="step('handwash',1)">+</button>
         </div>
       </div>
-      <div class="input-card">
+      <div class="input-card reveal">
         <div class="input-card-header"><span class="input-icon">🍽️</span>
           <div><div class="input-label">Dishwashing</div><div class="input-sub">~20 L per session</div></div></div>
         <div class="stepper">
@@ -456,7 +459,7 @@
           <button class="step-btn" onclick="step('dishes',1)">+</button>
         </div>
       </div>
-      <div class="input-card">
+      <div class="input-card reveal">
         <div class="input-card-header"><span class="input-icon">👕</span>
           <div><div class="input-label">Laundry</div><div class="input-sub">60 L per full load</div></div></div>
         <div class="stepper">
@@ -465,7 +468,7 @@
           <button class="step-btn" onclick="step('laundry',1)">+</button>
         </div>
       </div>
-      <div class="input-card">
+      <div class="input-card reveal">
         <div class="input-card-header"><span class="input-icon">🌿</span>
           <div><div class="input-label">Garden & Outdoor</div><div class="input-sub">15 L/min hose estimate</div></div></div>
         <div class="stepper">
@@ -474,7 +477,7 @@
           <button class="step-btn" onclick="step('garden',1)">+</button>
         </div>
       </div>
-      <div class="input-card">
+      <div class="input-card reveal">
         <div class="input-card-header"><span class="input-icon">🚰</span>
           <div><div class="input-label">Drinking & Cooking</div><div class="input-sub">~2 L baseline per person</div></div></div>
         <div class="stepper">
@@ -483,7 +486,7 @@
           <button class="step-btn" onclick="step('drinking',1)">+</button>
         </div>
       </div>
-      <div class="input-card">
+      <div class="input-card reveal">
         <div class="input-card-header"><span class="input-icon">👨‍👩‍👧‍👦</span>
           <div><div class="input-label">Household Size</div><div class="input-sub">Scales total consumption</div></div></div>
         <div class="stepper">
@@ -493,7 +496,7 @@
         </div>
       </div>
     </div>
-    <div class="calc-actions">
+    <div class="calc-actions reveal">
       <button class="btn-primary" onclick="sfxAnalyze();setTimeout(calculate,100)">💧 Analyze My Usage</button>
       <button class="btn-secondary" onclick="resetForm()">↺ Reset</button>
     </div>
@@ -501,7 +504,7 @@
 </section>
 
 <section id="results">
-  <div class="wrapper">
+  <div class="wrapper reveal">
     <div class="section-label">Your Analysis</div>
     <h2 class="section-title">Usage Breakdown</h2>
     <p class="section-sub" id="resultsSubtitle">Here's a detailed view of your household water consumption and how you compare.</p>
@@ -596,7 +599,7 @@
 </section>
 
 <section id="tips-sec">
-  <div class="wrapper">
+  <div class="wrapper reveal">
     <div class="tips-header">
       <div class="section-label">Conservation Guide</div>
       <h2 class="section-title">Water Saving Tips</h2>
@@ -964,8 +967,6 @@ function updateStreak(perPerson){
       localStorage.setItem('ww_xp',String(xp));
       renderStreak(true,m);
 renderChallenges();
-setTimeout(updateChIndicator,50,'daily');
-window.addEventListener('resize',()=>updateChIndicator(currentChTab));
       return;
     }
   } else {
@@ -1148,25 +1149,11 @@ function getTotalXP(){
 }
 
 let currentChTab='daily';
-function updateChIndicator(type){
-  const tabs=document.querySelectorAll('.ch-tab');
-  const indicator=document.querySelector('.ch-tab-indicator');
-  if(!indicator)return;
-  tabs.forEach((t,i)=>{
-    if(['daily','weekly','monthly'][i]===type){
-      const r=t.getBoundingClientRect(),p=t.parentElement.getBoundingClientRect();
-      indicator.style.width=r.width+'px';
-      indicator.style.transform=`translateX(${r.left-p.left}px)`;
-    }
-  });
-}
-
 function switchChTab(type){
   currentChTab=type;
   document.querySelectorAll('.ch-tab').forEach((t,i)=>{
     t.classList.toggle('active',['daily','weekly','monthly'][i]===type);
   });
-  updateChIndicator(type);
   sfxTab();
   renderChallenges();
 }
@@ -1219,10 +1206,10 @@ function renderChallenges(){
   const lvIdx=levels.indexOf(lv);
   document.getElementById('xpLevel').textContent=`Level ${lvIdx+1} — ${lv.name}`;
 
-  const prevLv=parseInt(localStorage.getItem('ww_last_level')||'0');
+  const prevLv=parseInt(localStorage.getItem('ww_last_level')||'0')||0;
   if(lvIdx>prevLv){
     localStorage.setItem('ww_last_level',String(lvIdx));
-    sfxAnalyze();
+    try{sfxAnalyze()}catch(e){}
     setTimeout(()=>showAchievement(lvIdx+1,lv.name),400);
   }
 
@@ -1272,6 +1259,10 @@ function dismissAchievement(){
 }
 
 renderChallenges();
+
+// ── Scroll Reveal ──
+const revealObs=new IntersectionObserver(ents=>{ents.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');revealObs.unobserve(e.target)}})},{threshold:.08});
+document.querySelectorAll('.reveal').forEach(el=>revealObs.observe(el));
 
 /* ═══════════════════════════════════════════
    DOWNLOAD REPORT
