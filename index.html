@@ -121,13 +121,6 @@
   .health-bar-marks { display:flex; justify-content:space-between; font-size:0.78rem; font-weight:500; color:rgba(240,249,255,0.5); margin-top:8px; padding:0 2px; }
   .health-bar-marks span { background:rgba(34,211,238,0.05); padding:2px 10px; border-radius:6px; border:1px solid rgba(34,211,238,0.08); }
   .health-bar-tips { margin-top:12px; padding:12px 16px; background:rgba(34,211,238,0.04); border:1px solid rgba(34,211,238,0.08); border-radius:12px; font-size:0.85rem; color:rgba(240,249,255,0.65); line-height:1.7; }
-  .health-report-card { background: var(--glass); border: 1px solid var(--border); border-radius: 20px; padding: 28px; backdrop-filter: blur(16px) saturate(1.2); -webkit-backdrop-filter: blur(16px) saturate(1.2); box-shadow: var(--glass-depth), var(--glass-edge); margin-bottom: 24px; }
-  .health-report-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:16px; }
-  @media(max-width:550px){ .health-report-grid{grid-template-columns:1fr} }
-  .health-report-item { background:rgba(34,211,238,0.04); border:1px solid rgba(34,211,238,0.08); border-radius:14px; padding:16px 18px; }
-  .health-report-item .label { font-size:0.75rem; text-transform:uppercase; letter-spacing:0.06em; color:rgba(240,249,255,0.4); margin-bottom:4px; }
-  .health-report-item .value { font-family:'Playfair Display',serif; font-size:1.4rem; font-weight:700; }
-  .health-report-item .sub { font-size:0.78rem; color:rgba(240,249,255,0.45); margin-top:2px; }
 
   .proj-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-bottom: 24px; }
   @media(max-width:650px){ .proj-grid{grid-template-columns:1fr} }
@@ -260,7 +253,7 @@
     .streak-msg { font-size:0.78rem; }
     .streak-meta { font-size:0.65rem; flex-wrap:wrap; gap:4px; }
     .ch-card { padding:16px; gap:10px; }
-    #analysisTipsGrid { grid-template-columns:1fr !important; }
+    #analysisTipsGrid, #healthReportGrid { grid-template-columns:1fr !important; }
   }
   @media(max-width:360px){
     .nav-links a { font-size:0.55rem; }
@@ -284,9 +277,11 @@
   .tip-panel-detail { font-size:0.8rem;color:rgba(240,249,255,0.5);line-height:1.6;margin-bottom:12px;padding:12px;background:rgba(34,211,238,0.03);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:10px;border:1px solid rgba(34,211,238,0.06); }
   .tip-panel-save { display:inline-block;padding:6px 16px;background:rgba(52,211,153,0.08);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);border:1px solid rgba(52,211,153,0.15);border-radius:999px;font-size:0.78rem;font-weight:600;color:var(--aqua); }
   /* ── Back to Top ── */
-  .top-btn { position:fixed;bottom:30px;left:50%;z-index:9999;width:50px;height:50px;border-radius:50%;border:1px solid var(--border);background:rgba(6,14,31,0.55);backdrop-filter:blur(16px) saturate(1.3);-webkit-backdrop-filter:blur(16px) saturate(1.3);color:var(--aqua);font-size:1.3rem;cursor:pointer;opacity:0;pointer-events:none;transform:translateX(-50%) translateY(16px);transition:all .3s ease;box-shadow:var(--glass-depth),var(--glass-edge); }
+  .top-btn { position:fixed;bottom:30px;left:50%;z-index:9999;width:56px;height:56px;border-radius:50%;border:1px solid var(--border);background:rgba(6,14,31,0.55);backdrop-filter:blur(16px) saturate(1.3);-webkit-backdrop-filter:blur(16px) saturate(1.3);color:var(--aqua);font-size:1.5rem;cursor:pointer;opacity:0;pointer-events:none;transform:translateX(-50%) translateY(16px);transition:all .3s ease;box-shadow:var(--glass-depth),var(--glass-edge);line-height:1; }
+
   .top-btn.show { opacity:1;pointer-events:auto;transform:translateX(-50%) translateY(0); }
-  .top-btn:hover { background:rgba(34,211,238,0.2);border-color:var(--aqua);transform:translateX(-50%) translateY(-3px);color:#fff;box-shadow:0 0 30px rgba(34,211,238,0.4),var(--glass-edge);filter:brightness(1.3); }
+
+  .top-btn:hover { background:rgba(34,211,238,0.2);border-color:var(--aqua);transform:translateX(-50%) translateY(-4px);color:#fff;box-shadow:0 0 20px rgba(34,211,238,0.3),0 0 50px rgba(34,211,238,0.15),var(--glass-edge);filter:brightness(1.4); }
 </style>
 </head>
 <body>
@@ -312,8 +307,8 @@
       <h1>Know Your <span>Water</span><br>Footprint Today</h1>
       <p>Understand how much water you use daily across every household activity — and discover powerful ways to conserve one of Earth's most precious resources.</p>
       <div class="hero-ctas">
-        <a href="#challenges-sec" class="cta-btn" onclick="sfx.click()"><span>💧</span> Start Saving Water</a>
-        <a href="#calculator" class="cta-btn-ghost" onclick="sfx.click()"><span>📊</span> Calculate Your Usage</a>
+        <a href="#challenges-sec" class="cta-btn"><span>💧</span> Start Saving Water</a>
+        <a href="#calculator" class="cta-btn-ghost"><span>📊</span> Calculate Your Usage</a>
       </div>
       <div class="hero-stats">
         <div class="hero-stat">
@@ -564,10 +559,10 @@
       </div>
     </div>
 
-    <div class="health-report-card" id="healthReportCard" style="display:none">
-      <div class="chart-title" style="margin-bottom:4px">🏥 Health Report</div>
-      <div style="font-size:0.85rem;color:rgba(240,249,255,0.5);margin-bottom:4px">How your drinking water intake affects your well-being</div>
-      <div class="health-report-grid" id="healthReportGrid"></div>
+    <div class="chart-card" id="healthReportCard" style="display:none;grid-column:1/-1">
+      <div class="chart-title">🏥 Health Report</div>
+      <div style="font-size:0.85rem;color:rgba(240,249,255,0.5);margin-bottom:12px">How your drinking water intake affects your well-being</div>
+      <div class="tips-grid" id="healthReportGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px"></div>
     </div>
 
     <div style="text-align:center;margin-top:24px">
@@ -733,94 +728,6 @@
   }
 })();
 
-// ── Shared Audio Context ──
-function ac(){return window.__ac||(window.__ac=new(window.AudioContext||window.webkitAudioContext)())}
-function acResume(){const c=ac();if(c.state==='suspended')c.resume();return c}
-
-// ── Sound Effects (Web Audio API) ──
-var sfx={
-  _t(freq,dur,type,vol){
-    const c=acResume(),o=c.createOscillator(),g=c.createGain();
-    o.type=type||'sine';o.frequency.value=freq;g.gain.value=vol||0.12;
-    g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+dur);
-    o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+dur);
-  },
-  _n(dur,vol){
-    const c=acResume(),buf=c.createBuffer(1,c.sampleRate*dur,c.sampleRate),d=buf.getChannelData(0);
-    for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
-    const s=c.createBufferSource(),g=c.createGain();
-    s.buffer=buf;g.gain.value=vol||0.04;
-    g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+dur);
-    s.connect(g);g.connect(c.destination);s.start();
-  },
-  click(){this._t(800,.08,'square',.04);this._t(1200,.05,'sine',.03);},
-  drip(){
-    [500,400,300].forEach((f,i)=>setTimeout(()=>{this._t(f,.12,'sine',.06);this._n(.08,.03)},i*60));
-  },
-  complete(){
-    [523,659,784].forEach((f,i)=>setTimeout(()=>this._t(f,.25,'sine',.1),i*100));
-    setTimeout(()=>this._n(.15,.05),200);
-  },
-  levelup(){
-    [523,587,659,784,880,1047].forEach((f,i)=>setTimeout(()=>this._t(f,.18,'sine',.09),i*80));
-    setTimeout(()=>this._n(.2,.04),450);
-  },
-  whoosh(){
-    const c=acResume(),buf=c.createBuffer(1,c.sampleRate*.3,c.sampleRate),d=buf.getChannelData(0);
-    for(let i=0;i<d.length;i++){const t=i/c.sampleRate;d[i]=(Math.random()*2-1)*Math.sin(t*Math.PI/.3);}
-    const s=c.createBufferSource(),g=c.createGain();
-    s.buffer=buf;g.gain.setValueAtTime(.03,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.3);
-    const f=c.createBiquadFilter();f.type='lowpass';f.frequency.value=800;
-    s.connect(f);f.connect(g);g.connect(c.destination);s.start();
-  },
-  splash(){
-    this._t(200,.15,'triangle',.06);this._t(400,.1,'sine',.04);this._n(.12,.05);
-    setTimeout(()=>{this._t(600,.08,'sine',.03);this._n(.08,.03)},80);
-  }
-};
-
-// ── Ambient Water Sound ──
-var ambient={
-  _src:null,_gain:null,_playing:false,_lfo:null,_started:false,
-  _create(){
-    if(this._gain)return;
-    const c=acResume();
-    const buf=c.createBuffer(1,c.sampleRate*4,c.sampleRate),d=buf.getChannelData(0);
-    for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
-    this._src=c.createBufferSource();this._src.buffer=buf;this._src.loop=true;
-    const nf=c.createBiquadFilter();nf.type='bandpass';nf.frequency.value=800;nf.Q.value=1.2;
-    this._gain=c.createGain();this._gain.gain.value=0;
-    this._src.connect(nf);nf.connect(this._gain);this._gain.connect(c.destination);
-    const o=c.createOscillator();o.type='sine';o.frequency.value=180;
-    const og=c.createGain();og.gain.value=0;
-    this._lfo=c.createOscillator();this._lfo.type='sine';this._lfo.frequency.value=0.12;
-    const lg=c.createGain();lg.gain.value=0.015;
-    this._lfo.connect(lg);lg.connect(o.frequency);
-    o.connect(og);og.connect(c.destination);
-    this._src.start();o.start();this._lfo.start();
-    this._gain2=og;
-  },
-  start(){
-    if(this._playing)return;
-    this._create();
-    this._gain.gain.setTargetAtTime(0.035,ac().currentTime,0.8);
-    this._gain2.gain.setTargetAtTime(0.025,ac().currentTime,1.2);
-    this._playing=true;
-  },
-  stop(){
-    if(!this._playing)return;
-    const c=ac();
-    this._gain.gain.linearRampToValueAtTime(0,c.currentTime+0.3);
-    this._gain2.gain.linearRampToValueAtTime(0,c.currentTime+0.4);
-    this._playing=false;
-  },
-  autoStart(){
-    if(this._started)return;
-    this.start();this._started=true;
-  }
-};
-document.addEventListener('pointerdown',()=>ambient.autoStart(),{once:true});
-
 const state={
   shower:  {val:8, min:1, max:30},
   toilet:  {val:5, min:1, max:15},
@@ -840,14 +747,12 @@ function step(key,delta){
   el.classList.remove('bump');
   void el.offsetWidth;
   el.classList.add('bump');
-  sfx.click();
 }
 
 const defaults={shower:8,toilet:5,handwash:6,dishes:2,laundry:4,garden:5,drinking:3,people:3};
 function resetForm(){
   for(const[k,v]of Object.entries(defaults)){state[k].val=v;document.getElementById(k+'-val').textContent=v;}
   document.getElementById('results').classList.remove('visible');
-  sfx.whoosh();
 }
 
 let pieInst=null,barInst=null;
@@ -955,21 +860,23 @@ function calculate(){
   hrCard.style.display='';
   const pctOfRec=Math.round(drinkL/2*100);
   const hrItems=[
-    {label:'Your Daily Intake',value:drinkL+' L',sub:'per person',color:'var(--aqua)'},
-    {label:'Recommended',value:'2 L',sub:'minimum per person',color:'var(--accent)'},
-    {label:'Target Met',value:pctOfRec>=100?Math.min(pctOfRec,200)+'%':'Only '+pctOfRec+'%',sub:pctOfRec>=100?'✅ Meets recommendation':'⚡ Below recommendation',color:pctOfRec>=100?'var(--accent)':'var(--warn)'},
-    {label:'Hydration Status',value:drinkL<1?'Low':drinkL<2?'Fair':'Optimal',sub:drinkL<1?'Increase intake now':drinkL<2?'Drink more water':'Great habit!',color:drinkL<1?'var(--danger)':drinkL<2?'var(--warn)':'var(--accent)'}
+    {icon:'💧',label:'Daily Intake',text:drinkL+' L per person',badge:pctOfRec+'% of recommended',badgeColor:'var(--aqua)'},
+    {icon:'🎯',label:'Recommended',text:'2 L minimum per person',badge:'WHO guideline',badgeColor:'var(--accent)'},
+    {icon:pctOfRec>=100?'✅':'⚠️',label:'Target Met',text:pctOfRec>=100?'You meet the daily recommendation':'Only '+pctOfRec+'% of target',badge:pctOfRec>=100?'On track!':'Needs improvement',badgeColor:pctOfRec>=100?'var(--accent)':'var(--warn)'},
+    {icon:drinkL<1?'🔴':drinkL<2?'🟡':'🟢',label:'Hydration Status',text:drinkL<1?'Low':drinkL<2?'Fair':'Optimal',badge:drinkL<1?'Increase intake now':drinkL<2?'Drink more water':'Great habit!',badgeColor:drinkL<1?'var(--danger)':drinkL<2?'var(--warn)':'var(--accent)'}
   ];
   document.getElementById('healthReportGrid').innerHTML=hrItems.map(i=>`
-    <div class="health-report-item">
-      <div class="label">${i.label}</div>
-      <div class="value" style="color:${i.color}">${i.value}</div>
-      <div class="sub">${i.sub}</div>
+    <div class="tip-card" style="background:var(--glass);border:1px solid var(--border);border-radius:14px;padding:16px;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:var(--glass-depth),var(--glass-edge)">
+      <span class="tip-emoji" style="font-size:1.5rem;display:block;margin-bottom:6px">${i.icon}</span>
+      <div class="tip-body">
+        <div class="tip-title" style="font-weight:600;font-size:0.85rem;color:var(--foam);margin-bottom:4px">${i.label}</div>
+        <div class="tip-text" style="font-size:0.78rem;color:rgba(240,249,255,0.55);line-height:1.5;margin-bottom:6px">${i.text}</div>
+        <span class="tip-save" style="font-size:0.72rem;color:${i.badgeColor};background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:999px;padding:2px 10px">${i.badge}</span>
+      </div>
     </div>
   `).join('');
 
   updateStreak(perPerson);
-  sfx.splash();
 }
 
 const STREAK_LIMIT=135;
@@ -1192,7 +1099,6 @@ function switchChTab(type){
   });
   renderChallenges();
   document.getElementById('challengeGrid').scrollIntoView({behavior:'smooth',block:'nearest'});
-  sfx.click();
 }
 
 function completeChallenge(id){
@@ -1200,7 +1106,6 @@ function completeChallenge(id){
   state[id]={completedAt:new Date().toISOString()};
   saveChState(state);
   renderChallenges();
-  sfx.complete();
 }
 
 function renderChallenges(){
@@ -1301,7 +1206,6 @@ renderChallenges();
    ═══════════════════════════════════════════ */
 
 function downloadImage(){
-  sfx.click();
   const btn=document.querySelector('.btn-pdf');
   btn.textContent='⏳ Generating Image...';
   btn.disabled=true;
@@ -1511,7 +1415,6 @@ function wireTips(){
       const t=el.querySelector('.tip-title'),d=el.querySelector('.tip-text'),s=el.querySelector('.tip-save');
       const cat=el.dataset.cat||'';
       const detail=el.dataset.detail?decodeURIComponent(el.dataset.detail):'';
-      sfx.click();
       if(t&&d&&s)openTipPanel(t.textContent,d.textContent,s.textContent.replace('Saves ','').replace('💧 ',''),cat,detail);
     });
   });
@@ -1521,13 +1424,11 @@ tipObserver.observe(document.getElementById('analysisTipsGrid')||document.body,{
 wireTips();
 
 // ── Back to Top ──
-const topBtn=document.createElement('button');
-topBtn.className='top-btn';topBtn.innerHTML='↑';topBtn.setAttribute('aria-label','Back to top');
+const topBtn=document.getElementById('backToTop');
 topBtn.onclick=()=>window.scrollTo({top:0,behavior:'smooth'});
-document.body.appendChild(topBtn);
 let topVisible=false;
 window.addEventListener('scroll',()=>{
-  const show=window.scrollY>300;
+  const show=window.scrollY>200;
   if(show!==topVisible){topVisible=show;topBtn.classList.toggle('show',show);}
 },{passive:true});
 
@@ -1549,6 +1450,8 @@ window.addEventListener('scroll',()=>{
     </div>
   </div>
 </div>
+
+<button id="backToTop" class="top-btn" aria-label="Back to top">↑</button>
 
 </body>
 </html>
