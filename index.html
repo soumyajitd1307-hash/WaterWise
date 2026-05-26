@@ -40,8 +40,10 @@
 
   .wrapper { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 0 24px; }
 
-  nav { position: sticky; top: 0; z-index: 100; backdrop-filter: blur(24px) saturate(1.4); -webkit-backdrop-filter: blur(24px) saturate(1.4); background: rgba(6,14,31,0.6); border-bottom: 1px solid var(--border); box-shadow: var(--glass-depth), var(--glass-edge); }
-  .nav-inner { display: flex; align-items: center; justify-content: space-between; max-width: 1100px; margin: 0 auto; padding: 0 24px; height: 64px; }
+  nav { position: sticky; top: 0; z-index: 100; backdrop-filter: blur(24px) saturate(1.4); -webkit-backdrop-filter: blur(24px) saturate(1.4); background: rgba(6,14,31,0.6); border-bottom: 1px solid var(--border); box-shadow: var(--glass-depth), var(--glass-edge); transition: background .3s, box-shadow .3s; }
+  nav.shrink { background: rgba(6,14,31,0.88); box-shadow: 0 4px 40px rgba(0,0,0,0.5), var(--glass-depth), var(--glass-edge); }
+  .nav-inner { display: flex; align-items: center; justify-content: space-between; max-width: 1100px; margin: 0 auto; padding: 0 24px; height: 64px; transition: height .3s; }
+  nav.shrink .nav-inner { height: 52px; }
   .logo { display: flex; align-items: center; gap: 10px; font-family: 'Playfair Display',serif; font-size: 1.4rem; font-weight: 700; color: var(--aqua); text-decoration: none; }
   .logo-drop { font-size: 1.8rem; animation: drip 2s ease-in-out infinite alternate; }
   @keyframes drip { from{transform:scaleY(1)} to{transform:scaleY(1.15) translateY(2px)} }
@@ -171,8 +173,6 @@
   .streak-meta strong { color:rgba(240,249,255,0.6); font-weight:500; }
   .streak-bonus { font-size:0.78rem; color:#34d399; font-weight:600; animation:bonusPop .4s ease; }
   @keyframes bonusPop { 0%{transform:scale(0);opacity:0} 60%{transform:scale(1.25)} 100%{transform:scale(1);opacity:1} }
-  .reveal { opacity: 0; transform: translateY(30px); transition: opacity .6s ease, transform .6s cubic-bezier(.25,.46,.45,.94); }
-  .reveal.visible { opacity: 1; transform: translateY(0); }
   .challenge-tabs { display: flex; gap: 0; margin-bottom: 24px; border-bottom: 1px solid rgba(255,255,255,0.06); }
   .ch-tab { padding: 12px 24px; border: none; background: transparent; color: rgba(240,249,255,0.4); font-size: 0.85rem; font-weight: 500; cursor: pointer; font-family: 'DM Sans',sans-serif; position: relative; transition: color .25s; }
   .ch-tab::after { content:''; position:absolute; bottom:0; left:50%; transform:translateX(-50%) scaleX(0); width:60%; height:2px; border-radius:2px; background:var(--aqua); transition:transform .25s cubic-bezier(.34,1.56,.64,1); }
@@ -309,6 +309,9 @@
   .top-btn { position:fixed;bottom:30px;left:50%;z-index:9999;width:56px;height:56px;border-radius:50%;border:1px solid rgba(34,211,238,0.4);background:rgba(6,14,31,0.8);backdrop-filter:blur(16px) saturate(1.3);-webkit-backdrop-filter:blur(16px) saturate(1.3);color:var(--aqua);font-size:1.6rem;cursor:pointer;opacity:0;pointer-events:none;transform:translateX(-50%) translateY(16px);transition:all .3s ease;box-shadow:0 0 20px rgba(34,211,238,0.2),var(--glass-depth),var(--glass-edge);display:flex;align-items:center;justify-content:center; }
   .top-btn.show { opacity:1;pointer-events:auto;transform:translateX(-50%) translateY(0); }
   .top-btn:hover { background:rgba(34,211,238,0.25);border-color:var(--aqua);transform:translateX(-50%) translateY(-4px);color:#fff;box-shadow:0 0 30px rgba(34,211,238,0.4),0 0 60px rgba(34,211,238,0.2),var(--glass-edge); }
+
+  .reveal { opacity:0; transform:translateY(30px); transition:opacity .6s ease-out,transform .6s ease-out; }
+  .reveal.visible { opacity:1; transform:translateY(0); }
 </style>
 </head>
 <body>
@@ -327,17 +330,17 @@
   </div>
 </nav>
 
-<section class="hero reveal visible">
+<section class="hero ">
   <div class="wrapper">
     <div class="hero-content">
-      <div class="hero-tag">💧 Water Conservation Tool</div>
-      <h1>Know Your <span>Water</span><br>Footprint Today</h1>
-      <p>Understand how much water you use daily across every household activity — and discover powerful ways to conserve one of Earth's most precious resources.</p>
-      <div class="hero-ctas">
+      <div class="hero-tag reveal">💧 Water Conservation Tool</div>
+      <h1 class="reveal">Know Your <span>Water</span><br>Footprint Today</h1>
+      <p class="reveal">Understand how much water you use daily across every household activity — and discover powerful ways to conserve one of Earth's most precious resources.</p>
+      <div class="hero-ctas reveal">
         <a href="#challenges-sec" class="cta-btn" onclick="sfxStart()"><span>💧</span> Start Saving Water</a>
         <a href="#calculator" class="cta-btn-ghost" onclick="_t(1000,.15,'sine',.07);setTimeout(()=>_t(1400,.1,'sine',.05),80)"><span>📊</span> Calculate Your Usage</a>
       </div>
-      <div class="hero-stats reveal visible">
+      <div class="hero-stats reveal">
         <div class="hero-stat">
           <div class="hero-stat-inner">
             <div class="hero-stat-val">142 L</div>
@@ -358,7 +361,7 @@
         </div>
       </div>
     </div>
-    <div class="hero-visual">
+    <div class="hero-visual reveal">
       <svg class="drop-svg" viewBox="0 0 300 380" fill="none" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <radialGradient id="dg" cx="38%" cy="35%" r="65%">
@@ -382,10 +385,10 @@
 
 <section id="challenges-sec">
   <div class="wrapper">
-    <div class="challenges-header reveal">
-      <div class="section-label">Take Action</div>
-      <h2 class="section-title">Water Challenges</h2>
-      <p class="section-sub">Complete daily, weekly, and monthly challenges to build water-saving habits. Track your progress and earn XP!</p>
+    <div class="challenges-header">
+      <div class="section-label reveal">Take Action</div>
+      <h2 class="section-title reveal">Water Challenges</h2>
+      <p class="section-sub reveal">Complete daily, weekly, and monthly challenges to build water-saving habits. Track your progress and earn XP!</p>
     </div>
 
     <div class="xp-bar-card reveal">
@@ -417,10 +420,10 @@
 </section>
 
 <section id="calculator">
-  <div class="wrapper reveal">
-    <div class="section-label">Calculate</div>
-    <h2 class="section-title">Estimate Your Daily Usage</h2>
-    <p class="section-sub">Adjust the sliders below to match your household's typical daily habits. Our tool breaks down consumption across every category.</p>
+  <div class="wrapper">
+    <div class="section-label reveal">Calculate</div>
+    <h2 class="section-title reveal">Estimate Your Daily Usage</h2>
+    <p class="section-sub reveal">Adjust the sliders below to match your household's typical daily habits. Our tool breaks down consumption across every category.</p>
 
     <div class="calc-grid">
       <div class="input-card reveal">
@@ -441,7 +444,7 @@
           <button class="step-btn" onclick="step('toilet',1)">+</button>
         </div>
       </div>
-      <div class="input-card">
+      <div class="input-card reveal">
         <div class="input-card-header"><span class="input-icon">🧼</span>
           <div><div class="input-label">Handwashing</div><div class="input-sub">~1.5 L per session</div></div></div>
         <div class="stepper">
@@ -504,7 +507,7 @@
 </section>
 
 <section id="results">
-  <div class="wrapper reveal">
+  <div class="wrapper">
     <div class="section-label">Your Analysis</div>
     <h2 class="section-title">Usage Breakdown</h2>
     <p class="section-sub" id="resultsSubtitle">Here's a detailed view of your household water consumption and how you compare.</p>
@@ -592,28 +595,28 @@
       <div class="tips-grid" id="healthReportGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px"></div>
     </div>
 
-    <div style="text-align:center;margin-top:24px">
+    <div style="text-align:center;margin-top:24px" class="reveal">
       <button class="btn-pdf" onclick="downloadImage()">🖼️ Download Report (Image)</button>
     </div>
   </div>
 </section>
 
 <section id="tips-sec">
-  <div class="wrapper reveal">
+  <div class="wrapper">
     <div class="tips-header">
-      <div class="section-label">Conservation Guide</div>
-      <h2 class="section-title">Water Saving Tips</h2>
-      <p class="section-sub">Simple everyday habits that can save thousands of litres a year — for your household and the planet.</p>
+      <div class="section-label reveal">Conservation Guide</div>
+      <h2 class="section-title reveal">Water Saving Tips</h2>
+      <p class="section-sub reveal">Simple everyday habits that can save thousands of litres a year — for your household and the planet.</p>
     </div>
 
-    <div class="fact-banner">
+    <div class="fact-banner reveal">
       <h3>💡 Did You Know?</h3>
       <p>The average person wastes over <strong>30 litres</strong> of water every single day through leaky taps, long showers, and inefficient appliances. Small changes in daily habits can collectively save millions of litres across communities.</p>
     </div>
 
     <div class="tips-grid">
 
-      <div class="tip-card">
+      <div class="tip-card reveal">
         <span class="tip-emoji">⏱️</span>
         <div class="tip-body">
           <div class="tip-title">Shorten Your Shower</div>
@@ -622,7 +625,7 @@
         </div>
       </div>
 
-      <div class="tip-card">
+      <div class="tip-card reveal">
         <span class="tip-emoji">🚿</span>
         <div class="tip-body">
           <div class="tip-title">Install a Low-Flow Showerhead</div>
@@ -631,7 +634,7 @@
         </div>
       </div>
 
-      <div class="tip-card">
+      <div class="tip-card reveal">
         <span class="tip-emoji">🚽</span>
         <div class="tip-body">
           <div class="tip-title">Use a Dual-Flush Toilet</div>
@@ -640,7 +643,7 @@
         </div>
       </div>
 
-      <div class="tip-card">
+      <div class="tip-card reveal">
         <span class="tip-emoji">🔧</span>
         <div class="tip-body">
           <div class="tip-title">Fix Dripping Taps Immediately</div>
@@ -649,7 +652,7 @@
         </div>
       </div>
 
-      <div class="tip-card">
+      <div class="tip-card reveal">
         <span class="tip-emoji">💚</span>
         <div class="tip-body">
           <div class="tip-title">Hydrate Smart — Drink Tap Water</div>
@@ -658,7 +661,7 @@
         </div>
       </div>
 
-      <div class="tip-card">
+      <div class="tip-card reveal">
         <span class="tip-emoji">👕</span>
         <div class="tip-body">
           <div class="tip-title">Only Run Full Laundry Loads</div>
@@ -667,7 +670,7 @@
         </div>
       </div>
 
-      <div class="tip-card">
+      <div class="tip-card reveal">
         <span class="tip-emoji">🍽️</span>
         <div class="tip-body">
           <div class="tip-title">Soak Dishes, Don't Rinse Under Running Tap</div>
@@ -676,7 +679,7 @@
         </div>
       </div>
 
-      <div class="tip-card">
+      <div class="tip-card reveal">
         <span class="tip-emoji">🌿</span>
         <div class="tip-body">
           <div class="tip-title">Water Your Garden at Dusk or Dawn</div>
@@ -685,7 +688,7 @@
         </div>
       </div>
 
-      <div class="tip-card">
+      <div class="tip-card reveal">
         <span class="tip-emoji">🪣</span>
         <div class="tip-body">
           <div class="tip-title">Collect Rainwater for the Garden</div>
@@ -694,7 +697,7 @@
         </div>
       </div>
 
-      <div class="tip-card">
+      <div class="tip-card reveal">
         <span class="tip-emoji">💧</span>
         <div class="tip-body">
           <div class="tip-title">Reuse Cold Warm-Up Water</div>
@@ -703,7 +706,7 @@
         </div>
       </div>
 
-      <div class="tip-card">
+      <div class="tip-card reveal">
         <span class="tip-emoji">🧼</span>
         <div class="tip-body">
           <div class="tip-title">Turn Off the Tap While Brushing</div>
@@ -712,7 +715,7 @@
         </div>
       </div>
 
-      <div class="tip-card">
+      <div class="tip-card reveal">
         <span class="tip-emoji">🚗</span>
         <div class="tip-body">
           <div class="tip-title">Use a Bucket to Wash Your Vehicle</div>
@@ -721,7 +724,7 @@
         </div>
       </div>
 
-      <div class="tip-card">
+      <div class="tip-card reveal">
         <span class="tip-emoji">🥗</span>
         <div class="tip-body">
           <div class="tip-title">Shift Towards a Plant-Rich Diet</div>
@@ -734,7 +737,7 @@
   </div>
 </section>
 
-<footer>
+<footer class="reveal">
   <p>💧 <span>WaterWise</span> — Every drop counts. Built to inspire sustainable everyday habits.<br>
   <span style="color:rgba(240,249,255,0.25);font-size:0.75rem;">Water consumption figures based on standard household usage references. Savings estimates are approximate annual averages.</span></p>
 </footer>
@@ -1260,10 +1263,6 @@ function dismissAchievement(){
 
 renderChallenges();
 
-// ── Scroll Reveal ──
-const revealObs=new IntersectionObserver(ents=>{ents.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');revealObs.unobserve(e.target)}})},{threshold:.08});
-document.querySelectorAll('.reveal').forEach(el=>revealObs.observe(el));
-
 /* ═══════════════════════════════════════════
    DOWNLOAD REPORT
    ═══════════════════════════════════════════ */
@@ -1499,6 +1498,20 @@ window.addEventListener('scroll',()=>{
   const show=window.scrollY>200;
   if(show!==topVisible){topVisible=show;topBtn.classList.toggle('show',show);}
 },{passive:true});
+
+// ── Nav Shrink ──
+const navEl=document.querySelector('nav');
+let navShrunk=false;
+window.addEventListener('scroll',()=>{
+  const shrink=window.scrollY>80;
+  if(shrink!==navShrunk){navShrunk=shrink;navEl.classList.toggle('shrink',shrink);}
+},{passive:true});
+
+// ── Scroll Reveal ──
+const revealObserver=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');revealObserver.unobserve(e.target);}});
+},{threshold:0.12,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(el=>revealObserver.observe(el));
 
 </script>
 
