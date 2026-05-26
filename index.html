@@ -29,10 +29,10 @@
     --glass-depth: 0 8px 32px rgba(0,0,0,0.35);
   }
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  html { scroll-behavior: smooth; }
-  body { font-family: 'DM Sans', sans-serif; background: var(--deep); color: var(--white); min-height: 100vh; overflow-x: hidden; }
+  html { scroll-behavior: smooth; background: linear-gradient(180deg,#060e1f 0%,#0b1d3a 35%,#0e3460 70%,#0a5c8c 100%); }
+  body { font-family: 'DM Sans', sans-serif; background: transparent; color: var(--white); min-height: 100dvh; overflow-x: hidden; overscroll-behavior: none; }
 
-  .ocean-bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; background: linear-gradient(180deg,#060e1f 0%,#0b1d3a 35%,#0e3460 70%,#0a5c8c 100%); overflow: hidden; }
+  .ocean-bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
   .bubble { position: absolute; border-radius: 50%; background: radial-gradient(circle at 30% 30%,rgba(34,211,238,0.18),rgba(8,145,178,0.04)); border: 1px solid rgba(34,211,238,0.08); animation: drift linear infinite; }
   @keyframes drift { 0%{transform:translateY(100vh) scale(.5);opacity:0} 10%{opacity:1} 90%{opacity:.6} 100%{transform:translateY(-20vh) scale(1.2);opacity:0} }
   .wave-line { position: absolute; left: -100%; width: 300%; border-top: 1px solid rgba(34,211,238,0.06); animation: waveScroll 12s linear infinite; }
@@ -171,10 +171,11 @@
   .streak-meta strong { color:rgba(240,249,255,0.6); font-weight:500; }
   .streak-bonus { font-size:0.78rem; color:#34d399; font-weight:600; animation:bonusPop .4s ease; }
   @keyframes bonusPop { 0%{transform:scale(0);opacity:0} 60%{transform:scale(1.25)} 100%{transform:scale(1);opacity:1} }
-  .challenge-tabs { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
-  .ch-tab { padding: 10px 18px; border-radius: 12px; border: 1px solid var(--border); background: rgba(8,145,178,0.06); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); color: rgba(240,249,255,0.6); font-size: 0.82rem; font-weight: 600; cursor: pointer; font-family: 'DM Sans',sans-serif; transition: all .2s; }
-  .ch-tab:hover { color: var(--foam); border-color: rgba(34,211,238,0.4); background: rgba(34,211,238,0.04); }
-  .ch-tab.active { background: rgba(34,211,238,0.15); border-color: var(--aqua); color: var(--white); font-weight: 600; box-shadow: 0 0 20px rgba(34,211,238,0.1); }
+  .challenge-tabs { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; position: relative; }
+  .ch-tab-indicator { position: absolute; top: 0; left: 0; height: 100%; width: 0; border-radius: 12px; background: rgba(34,211,238,0.18); border: 1px solid rgba(34,211,238,0.35); box-shadow: 0 0 24px rgba(34,211,238,0.12); transition: transform .35s cubic-bezier(.34,1.56,.64,1), width .35s cubic-bezier(.34,1.56,.64,1); pointer-events: none; }
+  .ch-tab { padding: 10px 18px; border-radius: 12px; border: 1px solid transparent; background: transparent; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); color: rgba(240,249,255,0.5); font-size: 0.82rem; font-weight: 500; cursor: pointer; font-family: 'DM Sans',sans-serif; transition: color .3s, font-weight .3s; position: relative; z-index: 1; }
+  .ch-tab:hover { color: var(--foam); }
+  .ch-tab.active { color: var(--white); font-weight: 600; }
   .challenge-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(300px,1fr)); gap: 14px; }
   .ch-card { background: var(--glass); border: 1px solid var(--border); border-radius: 16px; padding: 20px 22px; backdrop-filter: blur(16px) saturate(1.2); -webkit-backdrop-filter: blur(16px) saturate(1.2); box-shadow: var(--glass-depth), var(--glass-edge); display: flex; gap: 14px; align-items: flex-start; transition: all .2s; }
   .ch-card:hover { border-color: rgba(34,211,238,0.35); }
@@ -234,16 +235,19 @@
 
   @media(max-width:700px){
     .nav-inner { padding:0 8px; height:50px; }
-    .logo { font-size:0.95rem; gap:4px; }
-    .logo-drop { font-size:1.1rem; }
-    .nav-links { gap:4px; }
-    .nav-links a { font-size:0.62rem; letter-spacing:0; }
+    .logo { font-size:0.9rem; gap:3px; }
+    .logo-drop { font-size:1rem; }
+    .nav-links { gap:2px; }
+    .nav-links a { font-size:0.58rem; letter-spacing:0; padding:4px 5px; }
     .hero-content { text-align:center; display:flex; flex-direction:column; align-items:center; }
     .hero p { text-align:center; }
     .hero-stats { justify-content:center; gap:24px; }
     .hero-stat-val { font-size:1.6rem; }
     .hero-stat-label { font-size:0.72rem; }
     .section-sub { text-align:center; margin-left:auto; margin-right:auto; }
+    .chart-card { padding:16px; }
+    .chart-canvas-wrap { height:180px; }
+    .compare-card { padding:16px; }
   }
   @media(max-width:600px){
     .wrapper { padding:0 16px; }
@@ -254,11 +258,32 @@
     .streak-meta { font-size:0.65rem; flex-wrap:wrap; gap:4px; }
     .ch-card { padding:16px; gap:10px; }
     #analysisTipsGrid, #healthReportGrid { grid-template-columns:1fr !important; }
+    .chart-canvas-wrap { height:160px; }
   }
-  @media(max-width:360px){
-    .nav-links a { font-size:0.55rem; }
-    .logo { font-size:0.85rem; }
-    .hero h1 { font-size:1.6rem; }
+  @media(max-width:420px){
+    .nav-links a { font-size:0.52rem; padding:4px 3px; }
+    .logo { font-size:0.8rem; }
+    .logo-drop { font-size:0.9rem; }
+    .challenge-tabs { gap:4px; }
+    .ch-tab { padding:8px 12px; font-size:0.75rem; }
+    .input-card { padding:16px; }
+    .calc-actions { flex-direction:column; }
+    .btn-primary { min-width:0; }
+  }
+
+  @media (hover: none) and (pointer: coarse) {
+    .cta-btn, .cta-btn-ghost, .btn-primary { min-height: 52px; padding: 16px 28px; }
+    .ch-btn { padding: 10px 20px; font-size: 0.85rem; }
+    .step-btn { width: 44px; height: 44px; }
+    nav { backdrop-filter: none; -webkit-backdrop-filter: none; background: rgba(6,14,31,0.85); }
+    .hero { min-height: calc(92 * 1dvh); }
+    .cta-btn:hover, .cta-btn-ghost:hover, .btn-primary:hover, .step-btn:hover, .ch-tab:hover, .ch-btn:hover, .top-btn:hover { transform: none; box-shadow: var(--glass-depth), var(--glass-edge); border-color: var(--border); background: transparent; }
+    .cta-btn:active, .cta-btn-ghost:active { transform: scale(.96); background: rgba(34,211,238,0.12); border-color: var(--aqua); }
+    .btn-primary:active { transform: scale(.97); background: rgba(34,211,238,0.12); border-color: var(--aqua); }
+    .step-btn:active { transform: scale(.88); background: rgba(34,211,238,0.18); border-color: var(--aqua); }
+    .ch-btn:active { transform: scale(.96); background: rgba(34,211,238,0.2); }
+    .ch-tab:active { color: var(--white); }
+    .top-btn:active { transform: scale(.92); background: rgba(34,211,238,0.25); }
   }
   /* ── Tip Overlay ── */
   .tip-overlay { position:fixed;inset:0;background:rgba(6,14,31,0.7);backdrop-filter:blur(4px);z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .35s ease; }
@@ -277,11 +302,9 @@
   .tip-panel-detail { font-size:0.8rem;color:rgba(240,249,255,0.5);line-height:1.6;margin-bottom:12px;padding:12px;background:rgba(34,211,238,0.03);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:10px;border:1px solid rgba(34,211,238,0.06); }
   .tip-panel-save { display:inline-block;padding:6px 16px;background:rgba(52,211,153,0.08);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);border:1px solid rgba(52,211,153,0.15);border-radius:999px;font-size:0.78rem;font-weight:600;color:var(--aqua); }
   /* ── Back to Top ── */
-  .top-btn { position:fixed;bottom:30px;left:50%;z-index:9999;width:56px;height:56px;border-radius:50%;border:1px solid var(--border);background:rgba(6,14,31,0.55);backdrop-filter:blur(16px) saturate(1.3);-webkit-backdrop-filter:blur(16px) saturate(1.3);color:var(--aqua);font-size:1.5rem;cursor:pointer;opacity:0;pointer-events:none;transform:translateX(-50%) translateY(16px);transition:all .3s ease;box-shadow:var(--glass-depth),var(--glass-edge);line-height:1; }
-
+  .top-btn { position:fixed;bottom:30px;left:50%;z-index:9999;width:56px;height:56px;border-radius:50%;border:1px solid rgba(34,211,238,0.4);background:rgba(6,14,31,0.8);backdrop-filter:blur(16px) saturate(1.3);-webkit-backdrop-filter:blur(16px) saturate(1.3);color:var(--aqua);font-size:1.6rem;cursor:pointer;opacity:0;pointer-events:none;transform:translateX(-50%) translateY(16px);transition:all .3s ease;box-shadow:0 0 20px rgba(34,211,238,0.2),var(--glass-depth),var(--glass-edge);display:flex;align-items:center;justify-content:center; }
   .top-btn.show { opacity:1;pointer-events:auto;transform:translateX(-50%) translateY(0); }
-
-  .top-btn:hover { background:rgba(34,211,238,0.2);border-color:var(--aqua);transform:translateX(-50%) translateY(-4px);color:#fff;box-shadow:0 0 20px rgba(34,211,238,0.3),0 0 50px rgba(34,211,238,0.15),var(--glass-edge);filter:brightness(1.4); }
+  .top-btn:hover { background:rgba(34,211,238,0.25);border-color:var(--aqua);transform:translateX(-50%) translateY(-4px);color:#fff;box-shadow:0 0 30px rgba(34,211,238,0.4),0 0 60px rgba(34,211,238,0.2),var(--glass-edge); }
 </style>
 </head>
 <body>
@@ -381,6 +404,7 @@
     </div>
 
     <div class="challenge-tabs">
+      <div class="ch-tab-indicator"></div>
       <button class="ch-tab active" onclick="switchChTab('daily')">📅 Daily</button>
       <button class="ch-tab" onclick="switchChTab('weekly')">📆 Weekly</button>
       <button class="ch-tab" onclick="switchChTab('monthly')">🗓️ Monthly</button>
@@ -939,7 +963,9 @@ function updateStreak(perPerson){
       xp+=m.xp;
       localStorage.setItem('ww_xp',String(xp));
       renderStreak(true,m);
-      renderChallenges();
+renderChallenges();
+setTimeout(updateChIndicator,50,'daily');
+window.addEventListener('resize',()=>updateChIndicator(currentChTab));
       return;
     }
   } else {
@@ -1122,14 +1148,27 @@ function getTotalXP(){
 }
 
 let currentChTab='daily';
+function updateChIndicator(type){
+  const tabs=document.querySelectorAll('.ch-tab');
+  const indicator=document.querySelector('.ch-tab-indicator');
+  if(!indicator)return;
+  tabs.forEach((t,i)=>{
+    if(['daily','weekly','monthly'][i]===type){
+      const r=t.getBoundingClientRect(),p=t.parentElement.getBoundingClientRect();
+      indicator.style.width=r.width+'px';
+      indicator.style.transform=`translateX(${r.left-p.left}px)`;
+    }
+  });
+}
+
 function switchChTab(type){
   currentChTab=type;
   document.querySelectorAll('.ch-tab').forEach((t,i)=>{
     t.classList.toggle('active',['daily','weekly','monthly'][i]===type);
   });
+  updateChIndicator(type);
   sfxTab();
   renderChallenges();
-  document.getElementById('challengeGrid').scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 
 function completeChallenge(id){
@@ -1283,7 +1322,7 @@ function downloadImage(){
   const fm=n=>n>=1000?(n/1000).toFixed(1)+'k':Math.round(n);
 
   const div=document.createElement('div');
-  div.style.cssText='position:fixed;left:0;top:0;width:800px;opacity:0.999;pointer-events:none;z-index:-1000;';
+  div.style.cssText='position:fixed;left:-9999px;top:0;width:800px;';
   div.innerHTML=`
 <div style="font-family:Arial,Helvetica,sans-serif;color:#1a202c;width:760px;margin:0 auto;padding:0;background:#ffffff;">
   <div style="background:linear-gradient(135deg,#0b1d3a,#0e3460);padding:44px 40px 32px;">
@@ -1456,6 +1495,11 @@ const tipObserver=new MutationObserver(wireTips);
 tipObserver.observe(document.getElementById('analysisTipsGrid')||document.body,{childList:true,subtree:true});
 wireTips();
 
+</script>
+
+<button id="backToTop" class="top-btn" aria-label="Back to top">▲</button>
+
+<script>
 // ── Back to Top ──
 const topBtn=document.getElementById('backToTop');
 topBtn.onclick=()=>window.scrollTo({top:0,behavior:'smooth'});
@@ -1483,8 +1527,6 @@ window.addEventListener('scroll',()=>{
     </div>
   </div>
 </div>
-
-<button id="backToTop" class="top-btn" aria-label="Back to top">↑</button>
 
 </body>
 </html>
